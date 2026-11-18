@@ -33,8 +33,9 @@
 
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+Display:ital,wdth,wght@0,62.5..75,400..500;1,62.5..75,400..500&family=Geist:wght@400..600&family=Caveat:wght@500&display=swap" rel="stylesheet">
-  <link rel="preload" as="image" href="assets/img/hero-poster.webp" fetchpriority="high">
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+Display:ital,wdth,wght@0,62.5,400;1,62.5,400&family=Geist:wght@400..600&family=Caveat:wght@500&display=swap" rel="stylesheet">
+  <link rel="preload" as="image" href="assets/img/hero-poster-wide.webp" media="(min-width: 768px)" fetchpriority="high">
+  <link rel="preload" as="image" href="assets/img/hero-poster.webp" media="(max-width: 767px)" fetchpriority="high">
   <link rel="stylesheet" href="assets/css/style.css">
   <script>document.documentElement.classList.add('js');setTimeout(function(){var d=document.documentElement;if(!d.classList.contains('ready')){d.classList.remove('js');d.classList.add('no-loader')}},6000);</script>
 
@@ -42,21 +43,8 @@
   {
     "@context": "https://schema.org",
     "@graph": [
-      {
-        "@type": "WebSite",
-        "@id": "https://sergeykutedesign.github.io/KRV/#website",
-        "url": "https://sergeykutedesign.github.io/KRV/",
-        "name": "Что поесть",
-        "inLanguage": "ru-RU"
-      },
-      {
-        "@type": "Person",
-        "@id": "https://sergeykutedesign.github.io/KRV/#kristina",
-        "name": "Кристина Василиу",
-        "alternateName": "vas_kristi",
-        "jobTitle": "Нутрициолог, автор проекта «Что поесть»",
-        "sameAs": ["https://www.instagram.com/vas_kristi"]
-      },
+      { "@type": "WebSite", "@id": "https://sergeykutedesign.github.io/KRV/#website", "url": "https://sergeykutedesign.github.io/KRV/", "name": "Что поесть", "inLanguage": "ru-RU" },
+      { "@type": "Person", "@id": "https://sergeykutedesign.github.io/KRV/#kristina", "name": "Кристина Василиу", "alternateName": "vas_kristi", "jobTitle": "Нутрициолог, автор проекта «Что поесть»", "sameAs": ["https://www.instagram.com/vas_kristi"] },
       {
         "@type": "Product",
         "name": "Что поесть — доступ к рационам с КБЖУ",
@@ -84,52 +72,25 @@
   </script>
 </head>
 <body>
-  <!-- иконки -->
   <svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false">
-    <symbol id="mark" viewBox="0 0 40 40">
-      <g fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round">
-        <rect class="mk mk-1" x="5" y="28.4" width="30" height="8.2" rx="3"/>
-        <rect class="mk mk-2" x="7.6" y="19.2" width="24.8" height="7.6" rx="2.8"/>
-        <rect class="mk mk-3" x="10.2" y="10.2" width="19.6" height="7.2" rx="2.6" transform="rotate(-7 20 13.8)"/>
-        <path class="mk mk-stem" d="M19.7 10.1c0-1.7.2-3.1.8-4.3"/>
-      </g>
-      <path class="mk mk-leaf" d="M20.5 6.2c1-2.7 3.8-4.1 6.9-3.6-.7 2.8-3.7 4.3-6.9 3.6z" fill="currentColor"/>
-      <path class="mk mk-leaf" d="M20.1 6.6c-.9-2-3.1-3.1-5.4-2.6.4 2.1 2.7 3.3 5.4 2.6z" fill="currentColor"/>
-    </symbol>
+    <symbol id="wordmark" viewBox="0 34 277.5 40"><path d="M5,42 C4,51 6,57 12,57 C17,57 20.5,54 21.5,48 M22,40 L22,66 C22,70 25,70.5 29,67 C32,63 34,48 35,40 L35,70 L35,51 C35,43 39,40 43,40 C47,40 49.5,43 49.5,50 L49.5,70 L49.5,51 C49.5,43 53.5,40 57.5,40 C61.5,40 64,43 64,50 L64,65 C64,69 67,70.5 71,67 C73,69 78,71 80,69.5 M84.5,40 C78,40 74,47 74,55 C74,64 78,70 84,70 C90,70 94,64 94,55 C94,47 90,40 84,40 C88,40 91,40.5 93.5,38 M110,68 C113,62 115.5,47 116,40 L116,70 L116,51 C116,43 120,40 124,40 C128,40 130.5,43 130.5,50 L130.5,65 C130.5,69 133.5,70.5 137.5,67 C139.5,69 144.5,71 146.5,69.5 M151,40 C144.5,40 140.5,47 140.5,55 C140.5,64 144.5,70 150.5,70 C156.5,70 160.5,64 160.5,55 C160.5,47 156.5,40 150.5,40 M160,57 C166.5,58 178.5,55 178.5,47 C178,42 174.5,40 171,40 C165.5,40 162.5,48 162.5,55 C162.5,65 166.5,70 173.5,70 C176.5,70 179.5,68.5 182,66 M203.5,44 C201.5,41 198.5,40 195.5,40 C189.5,40 185.5,48 185.5,55 C185.5,65 189.5,70 196.5,70 C200.5,70 203.5,68.5 206.5,66 C209.5,62 212.5,48 213.5,40 L213.5,70 L213.5,51 C213.5,43 217.5,40 221.5,40 C225.5,40 228,43 228,50 L228,70 L228,51 C228,43 232,40 236,40 C240,40 242.5,43 242.5,50 L242.5,65 C242.5,69 245.5,70.5 249.5,67 C252.5,64 255,47 255.5,40 L255.5,70 L255.5,56 C259.5,53 268.5,53 268.5,62 C268.5,68 261.5,70.5 255.5,70" fill="none" stroke="currentColor" stroke-width="3.9" stroke-linecap="round" stroke-linejoin="round" transform="skewX(-6) translate(6 0)"/></symbol>
     <symbol id="arrow" viewBox="0 0 24 24"><path d="M5 12h14M13 6l6 6-6 6" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></symbol>
     <symbol id="close" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></symbol>
   </svg>
 
-  <!-- прелоадер -->
+  <!-- прелоадер: надпись пишется от руки -->
   <div class="loader" data-loader aria-hidden="true">
     <div class="loader__inner">
-      <svg class="loader__mark" viewBox="0 0 40 40">
-        <g fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
-          <rect data-l="1" x="5" y="28.4" width="30" height="8.2" rx="3"/>
-          <rect data-l="2" x="7.6" y="19.2" width="24.8" height="7.6" rx="2.8"/>
-          <g data-l="3"><rect x="10.2" y="10.2" width="19.6" height="7.2" rx="2.6" transform="rotate(-7 20 13.8)"/></g>
-          <path data-l="4" d="M19.7 10.1c0-1.7.2-3.1.8-4.3"/>
-        </g>
-        <g data-l="5" fill="currentColor">
-          <path d="M20.5 6.2c1-2.7 3.8-4.1 6.9-3.6-.7 2.8-3.7 4.3-6.9 3.6z"/>
-          <path d="M20.1 6.6c-.9-2-3.1-3.1-5.4-2.6.4 2.1 2.7 3.3 5.4 2.6z"/>
-        </g>
-      </svg>
-      <p class="loader__word"><span>что поесть</span></p>
-      <p class="loader__hint">готовим рацион на три дня…</p>
+      <svg class="loader__word" viewBox="0 34 277.5 40"><path data-loader-path d="M5,42 C4,51 6,57 12,57 C17,57 20.5,54 21.5,48 M22,40 L22,66 C22,70 25,70.5 29,67 C32,63 34,48 35,40 L35,70 L35,51 C35,43 39,40 43,40 C47,40 49.5,43 49.5,50 L49.5,70 L49.5,51 C49.5,43 53.5,40 57.5,40 C61.5,40 64,43 64,50 L64,65 C64,69 67,70.5 71,67 C73,69 78,71 80,69.5 M84.5,40 C78,40 74,47 74,55 C74,64 78,70 84,70 C90,70 94,64 94,55 C94,47 90,40 84,40 C88,40 91,40.5 93.5,38 M110,68 C113,62 115.5,47 116,40 L116,70 L116,51 C116,43 120,40 124,40 C128,40 130.5,43 130.5,50 L130.5,65 C130.5,69 133.5,70.5 137.5,67 C139.5,69 144.5,71 146.5,69.5 M151,40 C144.5,40 140.5,47 140.5,55 C140.5,64 144.5,70 150.5,70 C156.5,70 160.5,64 160.5,55 C160.5,47 156.5,40 150.5,40 M160,57 C166.5,58 178.5,55 178.5,47 C178,42 174.5,40 171,40 C165.5,40 162.5,48 162.5,55 C162.5,65 166.5,70 173.5,70 C176.5,70 179.5,68.5 182,66 M203.5,44 C201.5,41 198.5,40 195.5,40 C189.5,40 185.5,48 185.5,55 C185.5,65 189.5,70 196.5,70 C200.5,70 203.5,68.5 206.5,66 C209.5,62 212.5,48 213.5,40 L213.5,70 L213.5,51 C213.5,43 217.5,40 221.5,40 C225.5,40 228,43 228,50 L228,70 L228,51 C228,43 232,40 236,40 C240,40 242.5,43 242.5,50 L242.5,65 C242.5,69 245.5,70.5 249.5,67 C252.5,64 255,47 255.5,40 L255.5,70 L255.5,56 C259.5,53 268.5,53 268.5,62 C268.5,68 261.5,70.5 255.5,70" pathLength="1" fill="none" stroke="currentColor" stroke-width="3.9" stroke-linecap="round" stroke-linejoin="round" transform="skewX(-6) translate(6 0)"/></svg>
+      <p class="loader__hint">собираем рацион на три дня</p>
       <div class="loader__bar"><i data-loader-bar></i></div>
-      <span class="loader__pct" data-loader-pct>00</span>
     </div>
   </div>
 
   <a class="skip" href="#main">К содержанию</a>
 
-  <!-- шапка: логотип + меню -->
   <header class="nav" data-nav>
-    <a class="logo" href="#top" aria-label="Что поесть — на главную">
-      <svg class="logo__mark" aria-hidden="true"><use href="#mark"/></svg>
-      <span class="logo__word">что поесть</span>
-    </a>
+    <a class="logo" href="#top" aria-label="Что поесть — на главную"><svg class="logo__svg" aria-hidden="true"><use href="#wordmark"/></svg></a>
     <button class="burger" type="button" data-menu-open aria-expanded="false" aria-controls="menu">
       <span class="burger__label" aria-hidden="true"><span>меню</span><span>меню</span></span>
       <span class="burger__icon" aria-hidden="true"><i></i><i></i></span>
@@ -139,7 +100,6 @@
 
   <div class="scrim" data-scrim hidden></div>
 
-  <!-- меню: на десктопе раскрывается из шапки, на телефоне — боттом-шит -->
   <div class="menu sheet" id="menu" role="dialog" aria-modal="true" aria-label="Меню" data-menu hidden>
     <span class="sheet__handle" data-drag-handle aria-hidden="true"></span>
     <button class="sheet__close" type="button" data-close aria-label="Закрыть меню"><svg><use href="#close"/></svg></button>
@@ -158,19 +118,24 @@
     </div>
   </div>
 
-  <!-- CTA: стартует в hero и «оседает» внизу экрана; по нажатию раскрывается как iOS-виджет -->
+  <!-- CTA: из центра видео-карточки «оседает» вниз и живёт там до конца страницы -->
   <button class="dock" type="button" data-dock aria-haspopup="dialog" aria-controls="access" aria-expanded="false">
-    <span class="dock__icon" aria-hidden="true"><svg><use href="#mark"/></svg></span>
+    <span class="dock__ava" aria-hidden="true"><img src="assets/img/kristina-ava.webp" alt="" width="120" height="120"></span>
     <span class="dock__label">получить доступ</span>
-    <span class="dock__price">от 1&nbsp;190&nbsp;₽</span>
+    <span class="dock__price">от&nbsp;1&nbsp;190&nbsp;₽</span>
   </button>
 
   <div class="access sheet" id="access" role="dialog" aria-modal="true" aria-labelledby="access-title" data-access hidden>
-    <span class="sheet__handle" data-drag-handle aria-hidden="true"></span>
-    <button class="sheet__close" type="button" data-close aria-label="Закрыть"><svg><use href="#close"/></svg></button>
-    <div class="access__body">
-      <p class="access__eyebrow">доступ к рационам</p>
-      <h2 class="access__title" id="access-title">Выбери, как тебе удобнее</h2>
+    <div class="access__inner" data-access-inner>
+      <span class="sheet__handle" data-drag-handle aria-hidden="true"></span>
+      <button class="sheet__close" type="button" data-close aria-label="Закрыть"><svg><use href="#close"/></svg></button>
+      <div class="access__head">
+        <span class="access__ava"><img src="assets/img/kristina-ava.webp" alt="" width="120" height="120"></span>
+        <div>
+          <h2 class="access__title" id="access-title">Выбери, как тебе удобнее</h2>
+          <p class="access__by">Кристина · закрытый канал «Что поесть»</p>
+        </div>
+      </div>
       <a class="opt opt--best" href="https://t.me/VasKristiSub_Bot?start=sp_7bh0Mf1V8AbDvkL4" target="_blank" rel="noopener">
         <span class="opt__top"><span class="opt__name">Навсегда</span><span class="opt__tag">выгоднее</span></span>
         <span class="opt__price">1&nbsp;790&nbsp;₽</span>
@@ -189,61 +154,43 @@
 
   <main id="main">
 
-    <!-- 1. HERO — видео + затемнение (Serein) -->
-    <section class="hero screen" id="top" aria-labelledby="hero-title">
-      <div class="hero__media" data-hero-media>
-        <video class="hero__video" data-hero-video muted playsinline loop preload="auto" poster="assets/img/hero-poster.webp" aria-hidden="true"></video>
-        <div class="hero__shade"></div>
-      </div>
-      <div class="hero__content" data-hero-content>
-        <p class="hero__eyebrow" data-intro>рационы с кбжу · 4&nbsp;500+ участниц</p>
-        <h1 class="hero__title" id="hero-title" data-intro>Худеть вкусно,<br><em>готовить раз в&nbsp;три дня</em></h1>
-        <p class="hero__lead" data-intro>Готовые рационы от нутрициолога Кристины Василиу: КБЖУ посчитано, список продуктов собран. Два часа у плиты — и три дня ты ешь пасту и десерты, оставаясь в дефиците.</p>
+    <!-- 1. HERO — сцена как у Serein: видео → карточка → текст за ней -->
+    <section class="hero" id="top" data-hero aria-labelledby="hero-title">
+      <div class="hero__sticky" data-hero-sticky>
+        <h2 class="hero__statement" data-statement>Представь, что кто‑то уже решил, <em>что тебе поесть.</em></h2>
+        <div class="hero__media" data-hero-media>
+          <video class="hero__video" data-hero-video muted playsinline loop preload="auto" aria-hidden="true"></video>
+          <div class="hero__shade" data-hero-shade></div>
+        </div>
+        <div class="hero__content" data-hero-content>
+          <h1 class="hero__title" id="hero-title" data-intro>Худеть вкусно,<br><em>готовить раз в&nbsp;три дня</em></h1>
+          <p class="hero__lead" data-intro>Готовые рационы от нутрициолога Кристины Василиу: КБЖУ посчитано, продукты списком. Два часа у плиты — и три дня ты ешь пасту и десерты, оставаясь в дефиците.</p>
+          <span class="hero__cta" data-cta-slot aria-hidden="true"></span>
+        </div>
+        <figure class="float float--a" data-float><img src="assets/img/food-07-720.webp" alt="Кристина со стопкой контейнеров с едой" width="720" height="1280" decoding="async"><figcaption><b>2 часа</b>у плиты — еда на три дня</figcaption></figure>
+        <figure class="float float--b" data-float><img src="assets/img/kristina-pasta.webp" alt="Кристина ест пасту с креветками" width="640" height="640" decoding="async"><figcaption><b>−13 кг</b>на пасте, а не на гречке</figcaption></figure>
+        <figure class="float float--c" data-float><img src="assets/img/food-20-720.webp" alt="Контейнеры с рассчитанными порциями" width="720" height="1280" decoding="async"><figcaption><b>0 подсчётов</b>КБЖУ уже в рецепте</figcaption></figure>
+        <figure class="float float--d" data-float><img src="assets/img/food-19-720.webp" alt="Рацион с пиццей и мороженым Twix" width="720" height="1280" decoding="async"><figcaption><b>Twix в меню</b>сладкое вписано в калории</figcaption></figure>
         <div class="hero__slot" data-dock-slot aria-hidden="true"></div>
       </div>
     </section>
 
-    <!-- 2. ДЕТАЛИ — карточка по центру + плавающие карточки (Serein collage) -->
-    <section class="details screen" id="details" aria-labelledby="details-title">
-      <div class="details__stage" data-details>
-        <h2 class="details__title" id="details-title" data-details-title>Представь: открываешь холодильник, <em>а&nbsp;еда на три дня уже готова</em></h2>
-        <figure class="details__card" data-details-card>
-          <img src="assets/img/food-14-wide.webp" alt="Готовый рацион в стеклянных контейнерах: салаты, запеканки, фаршированные перцы и Oreo" width="1920" height="1080" loading="lazy" decoding="async">
-          <a class="glass-pill" href="#how">как это работает <svg aria-hidden="true"><use href="#arrow"/></svg></a>
-        </figure>
-        <article class="dcard dcard--a" data-dcard>
-          <img src="assets/img/food-07-720.webp" alt="Кристина со стопкой контейнеров с едой" width="720" height="1280" loading="lazy" decoding="async">
-          <p><b>2 часа</b>у плиты — и&nbsp;еда готова на&nbsp;3&nbsp;дня</p>
-        </article>
-        <article class="dcard dcard--b" data-dcard>
-          <img src="assets/img/kristina-pasta.webp" alt="Кристина ест пасту с креветками" width="640" height="640" loading="lazy" decoding="async">
-          <p><b>−13 кг</b>Кристина похудела на&nbsp;пасте, а&nbsp;не&nbsp;на&nbsp;гречке</p>
-        </article>
-        <article class="dcard dcard--c" data-dcard>
-          <img src="assets/img/food-20-720.webp" alt="Контейнеры с едой и рассчитанными порциями" width="720" height="1280" loading="lazy" decoding="async">
-          <p><b>0 подсчётов</b>КБЖУ и&nbsp;граммовки уже в&nbsp;каждом рецепте</p>
-        </article>
-        <article class="dcard dcard--d" data-dcard>
-          <img src="assets/img/food-19-720.webp" alt="Рацион с пиццей и мороженым Twix" width="720" height="1280" loading="lazy" decoding="async">
-          <p><b>Twix в меню</b>сладкое вписано в&nbsp;калории, срываться не&nbsp;на&nbsp;что</p>
-        </article>
+    <!-- 2. БОЛЬ — наезжает на hero -->
+    <section class="mission layer" id="pain" data-layer aria-labelledby="pain-title">
+      <div class="mission__sticky layer__sticky" data-layer-inner>
+        <div class="mission__inner">
+          <h2 class="mission__title" id="pain-title" data-reveal>Дело не в силе воли</h2>
+          <p class="mission__text" data-reveal>Девять вечера, ты у холодильника. В сохранённых — сотни рецептов, а плана на завтра нет. В итоге доставка, печенька и «начну с понедельника».</p>
+          <p class="mission__strong" data-reveal>Срываются не от слабости, а от усталости каждый день решать, что поесть. Это решение мы берём на себя.</p>
+        </div>
+        <svg class="herbs" data-herbs aria-hidden="true"></svg>
       </div>
     </section>
 
-    <!-- 3. БОЛЬ — спокойный блок в духе Serein «Our mission» -->
-    <section class="mission screen" id="pain" aria-labelledby="pain-title">
-      <div class="mission__inner">
-        <p class="kicker" data-reveal>знакомо?</p>
-        <h2 class="mission__title" id="pain-title" data-reveal>Дело не в силе воли</h2>
-        <p class="mission__text" data-reveal>Девять вечера, ты у холодильника. В сохранённых — сотни рецептов, а плана на завтра нет. В итоге доставка, печенька и «начну с понедельника».</p>
-        <p class="mission__strong" data-reveal>Срываются не от слабости, а от усталости каждый день решать, что поесть. Это решение мы берём на себя.</p>
-      </div>
-      <svg class="herbs" data-herbs aria-hidden="true"></svg>
-    </section>
-
-    <!-- 4. КАК ЭТО РАБОТАЕТ — экраны сменяют друг друга -->
-    <section class="steps" id="how" aria-labelledby="how-title">
-      <div class="steps__pin screen" data-steps>
+    <!-- 3. КАК ЭТО РАБОТАЕТ — экраны сменяют друг друга -->
+    <section class="steps layer" id="how" data-steps aria-labelledby="how-title">
+      <div class="steps__sticky" data-layer-inner>
+        <h2 class="sr-only" id="how-title">Как это работает</h2>
         <div class="steps__media">
           <figure class="steps__img is-active" data-step-img><img src="assets/img/food-14-1280.webp" alt="Готовый рацион в контейнерах на столе" width="1280" height="2276" decoding="async"></figure>
           <figure class="steps__img" data-step-img><img src="assets/img/food-12-1280.webp" alt="Продукты для рациона по списку покупок" width="1280" height="2276" loading="lazy" decoding="async"></figure>
@@ -251,80 +198,80 @@
           <figure class="steps__img" data-step-img><img src="assets/img/food-09-1280.webp" alt="Стопки контейнеров с готовой едой на три дня" width="1280" height="2276" loading="lazy" decoding="async"></figure>
         </div>
         <div class="steps__side">
-          <div class="steps__head">
-            <h2 class="kicker" id="how-title">Как это работает</h2>
-            <p class="steps__count" aria-hidden="true"><span data-step-num>01</span><span class="steps__total">/ 04</span></p>
-          </div>
+          <p class="steps__count" aria-hidden="true"><span class="steps__num"><span data-step-num>01</span></span><span class="steps__total">/ 04</span></p>
           <div class="steps__texts">
-            <article class="step is-active" data-step>
-              <h3>Выбираешь рацион</h3>
-              <p>58+ готовых меню на 2–3 дня под твою калорийность — от 1400 до 1800 ккал. Завтраки, обеды, ужины и перекусы уже расписаны.</p>
-            </article>
-            <article class="step" data-step>
-              <h3>Покупаешь по списку</h3>
-              <p>Корзина продуктов к рациону собрана заранее — с граммовками. Один поход в магазин и ничего лишнего в чеке.</p>
-            </article>
-            <article class="step" data-step>
-              <h3>Готовишь по видео</h3>
-              <p>1,5–2 часа по пошаговому видео: что ставить первым, что готовить параллельно. Справится даже тот, кто никогда не готовил.</p>
-            </article>
-            <article class="step" data-step>
-              <h3>Три дня просто ешь</h3>
-              <p>Раскладываешь всё по контейнерам — и до следующей готовки вопрос «что поесть» больше не возникает.</p>
-            </article>
+            <article class="step is-active" data-step><h3>Выбираешь рацион</h3><p>58+ готовых меню на 2–3 дня под твою калорийность — от 1400 до 1800 ккал. Завтраки, обеды, ужины и перекусы уже расписаны.</p></article>
+            <article class="step" data-step><h3>Покупаешь по списку</h3><p>Корзина продуктов к рациону собрана заранее — с граммовками. Один поход в магазин и ничего лишнего в чеке.</p></article>
+            <article class="step" data-step><h3>Готовишь по видео</h3><p>1,5–2 часа по пошаговому видео: что ставить первым, что готовить параллельно. Справится даже тот, кто никогда не готовил.</p></article>
+            <article class="step" data-step><h3>Три дня просто ешь</h3><p>Раскладываешь всё по контейнерам — и до следующей готовки вопрос «что поесть» больше не возникает.</p></article>
           </div>
           <div class="steps__bars" aria-hidden="true"><i data-step-bar></i><i data-step-bar></i><i data-step-bar></i><i data-step-bar></i></div>
         </div>
       </div>
     </section>
 
-    <!-- 5. ПОЧЕМУ ХУДЕЮТ — шахматка Loiseau в один экран -->
-    <section class="why screen" id="why" aria-labelledby="why-title">
-      <header class="why__head">
-        <p class="kicker" data-reveal>почему это работает</p>
-        <h2 class="why__title" id="why-title" data-reveal>Фигура меняется, <em>когда еда перестаёт быть стрессом</em></h2>
-      </header>
-      <div class="why__grid" data-why>
-        <figure class="why__img"><img src="assets/img/food-10-720.webp" alt="Рацион с запечённой тыквой, мясом и шоколадными десертами" width="720" height="1280" loading="lazy" decoding="async"></figure>
-        <article class="why__cell why__cell--lime"><span class="why__n">i.</span><h3>Дефицит без голода</h3><p>Граммовки рассчитаны так, что ты сыта, а вес уходит. Без весов и приложений.</p></article>
-        <figure class="why__img"><img src="assets/img/food-19-720.webp" alt="Рацион с пиццей и мороженым" width="720" height="1280" loading="lazy" decoding="async"></figure>
-        <article class="why__cell why__cell--cream"><span class="why__n">ii.</span><h3>Сладкое по плану</h3><p>Шоколадка уже вписана в калории — её не хочется съесть тайком ночью.</p></article>
-        <article class="why__cell why__cell--sage"><span class="why__n">iii.</span><h3>Ноль решений за день</h3><p>Еда ждёт в холодильнике. Силе воли просто не на что тратиться.</p></article>
-        <figure class="why__img"><img src="assets/img/food-13-720.webp" alt="Контейнеры с готовой едой стопкой" width="720" height="1280" loading="lazy" decoding="async"></figure>
-        <article class="why__cell why__cell--olive"><span class="why__n">iv.</span><h3>Одна готовка на семью</h3><p>Муж и дети едят то же самое, только в своих порциях. Готовить дважды не нужно.</p></article>
-        <figure class="why__img"><img src="assets/img/food-02-720.webp" alt="Хачапури, котлеты с рисом и запеканки в контейнерах" width="720" height="1280" loading="lazy" decoding="async"></figure>
-      </div>
-      <div class="why__dots" data-why-dots aria-hidden="true"><i class="on"></i><i></i><i></i><i></i></div>
-    </section>
-
-    <!-- 6. КАЛОРИЙНОСТЬ -->
-    <section class="kcal screen" id="kcal" aria-labelledby="kcal-title">
-      <div class="kcal__copy">
-        <p class="kicker" data-reveal>подстрой под себя</p>
-        <h2 class="kcal__title" id="kcal-title" data-reveal>Твоя калорийность — <em>твой рацион</em></h2>
-        <p class="kcal__text" data-reveal>Выбери свою цифру и посмотри реальный рацион из канала. Нужна точная норма — в канале есть промпт, который пересчитает порции.</p>
-        <div class="kcal__switch" role="tablist" aria-label="Калорийность рациона" data-reveal>
-          <button role="tab" type="button" data-k="1400" aria-selected="false">1400</button>
-          <button role="tab" type="button" data-k="1500" aria-selected="false">1500</button>
-          <button role="tab" type="button" data-k="1600" aria-selected="true" class="on">1600</button>
-          <button role="tab" type="button" data-k="1700" aria-selected="false">1700</button>
-          <button role="tab" type="button" data-k="1800" aria-selected="false">1800</button>
+    <!-- 4. ПОЧЕМУ ХУДЕЮТ — панели наслаиваются (Serein) -->
+    <section class="why layer" id="why" aria-labelledby="why-title">
+      <div class="why__panel why__panel--intro" data-why-panel>
+        <div class="why__box">
+          <h2 class="why__title" id="why-title" data-reveal>Фигура меняется, <em>когда еда перестаёт быть стрессом</em></h2>
+          <p class="why__lead" data-reveal>Четыре причины, почему на рационах худеют без срывов — и не возвращаются к «с понедельника».</p>
         </div>
       </div>
-      <div class="kcal__visual">
+      <div class="why__track" data-why-track>
+        <article class="why__panel why__panel--lime" data-why-panel>
+          <div class="why__box why__box--card">
+            <div class="why__copy"><span class="why__n">01 / 04</span><h3>Дефицит без голода</h3><p>Граммовки рассчитаны так, что ты сыта, а вес уходит. Без весов на кухне и приложений-счётчиков.</p></div>
+            <figure class="why__img"><img src="assets/img/food-10-720.webp" alt="Рацион с запечённой тыквой, мясом и десертами" width="720" height="1280" loading="lazy" decoding="async"></figure>
+          </div>
+        </article>
+        <article class="why__panel why__panel--cream" data-why-panel>
+          <div class="why__box why__box--card">
+            <div class="why__copy"><span class="why__n">02 / 04</span><h3>Сладкое по плану</h3><p>Шоколадка уже вписана в калории. Когда её можно, её не хочется съесть тайком ночью.</p></div>
+            <figure class="why__img"><img src="assets/img/food-19-720.webp" alt="Рацион с пиццей и мороженым" width="720" height="1280" loading="lazy" decoding="async"></figure>
+          </div>
+        </article>
+        <article class="why__panel why__panel--sage" data-why-panel>
+          <div class="why__box why__box--card">
+            <div class="why__copy"><span class="why__n">03 / 04</span><h3>Ноль решений за день</h3><p>Еда ждёт в холодильнике. Силе воли просто не на что тратиться — и срываться не из-за чего.</p></div>
+            <figure class="why__img"><img src="assets/img/food-13-720.webp" alt="Контейнеры с готовой едой стопкой" width="720" height="1280" loading="lazy" decoding="async"></figure>
+          </div>
+        </article>
+        <article class="why__panel why__panel--olive" data-why-panel>
+          <div class="why__box why__box--card">
+            <div class="why__copy"><span class="why__n">04 / 04</span><h3>Одна готовка на семью</h3><p>Муж и дети едят то же самое, только в своих порциях. Не нужно готовить себе «диетическое» отдельно.</p></div>
+            <figure class="why__img"><img src="assets/img/food-02-720.webp" alt="Хачапури, котлеты с рисом и запеканки в контейнерах" width="720" height="1280" loading="lazy" decoding="async"></figure>
+          </div>
+        </article>
+      </div>
+    </section>
+
+    <!-- 5. КАЛОРИЙНОСТЬ -->
+    <section class="kcal" id="kcal" aria-labelledby="kcal-title">
+      <div class="kcal__grid">
+        <div class="kcal__copy">
+          <h2 class="kcal__title" id="kcal-title" data-reveal>Твоя калорийность — <em>твой рацион</em></h2>
+          <p class="kcal__text" data-reveal>Выбери свою цифру и посмотри реальный рацион из канала. Нужна точная норма — в канале есть промпт, который пересчитает порции под тебя.</p>
+          <div class="kcal__switch" role="tablist" aria-label="Калорийность рациона" data-reveal>
+            <button role="tab" type="button" data-k="1400" aria-selected="false">1400</button>
+            <button role="tab" type="button" data-k="1500" aria-selected="false">1500</button>
+            <button role="tab" type="button" data-k="1600" aria-selected="true" class="on">1600</button>
+            <button role="tab" type="button" data-k="1700" aria-selected="false">1700</button>
+            <button role="tab" type="button" data-k="1800" aria-selected="false">1800</button>
+          </div>
+          <p class="kcal__unit" data-reveal>ккал в день · реальное фото рациона</p>
+        </div>
         <div class="kcal__frame" data-kcal-frame>
           <img src="assets/img/ration-1600.webp" alt="Реальный рацион на 1600 ккал в контейнерах" width="900" height="1125" loading="lazy" decoding="async">
         </div>
-        <p class="kcal__num" aria-live="polite"><span data-kcal-num>1600</span><em>ккал</em></p>
       </div>
     </section>
 
-    <!-- лента-интерлюдия (Sweet Tape) -->
     <section class="ribbons" aria-label="Что едят на рационах">
-      <svg class="ribbons__svg" viewBox="0 0 1440 360" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
+      <svg class="ribbons__svg" viewBox="0 0 1440 360" preserveAspectRatio="xMidYMid meet" aria-hidden="true">
         <defs>
-          <path id="rb1" d="M-260,210 C 180,60 420,320 760,180 S 1290,40 1700,160"/>
-          <path id="rb2" d="M-260,90 C 220,270 520,20 860,190 S 1300,300 1700,120"/>
+          <path id="rb1" d="M-900,210 C -500,90 -200,260 180,150 C 520,52 700,300 1000,200 C 1260,112 1480,150 2340,170"/>
+          <path id="rb2" d="M-900,120 C -500,250 -200,90 200,170 C 560,240 760,70 1060,170 C 1300,250 1520,210 2340,140"/>
         </defs>
         <use href="#rb2" class="ribbons__band ribbons__band--olive"/>
         <text class="ribbons__text ribbons__text--light"><textPath href="#rb2" data-ribbon="-1" data-text="не грудка с гречкой ✦ не диета ✦ не марафон ✦ без запретов">не грудка с гречкой ✦ не диета ✦ не марафон ✦ без запретов ✦ </textPath></text>
@@ -334,70 +281,76 @@
       <p class="sr-only">В рационах есть паста, пицца, хачапури, лазанья, супы, брауни, креветки, роллы с манго и шоколадки — это не диета и не марафон.</p>
     </section>
 
-    <!-- 7. ЧТО ВНУТРИ — меню ресторана -->
-    <section class="inside screen" id="inside" aria-labelledby="inside-title">
-      <header class="inside__head">
-        <p class="kicker" data-reveal>что внутри</p>
-        <h2 class="inside__title" id="inside-title" data-reveal>Всё, чтобы <em>не думать о еде</em></h2>
-        <p class="inside__note" data-reveal>Закрытый Telegram-канал: ищешь рацион по хэштегу калорийности — и готовишь.</p>
-      </header>
-      <ul class="menu-list" data-menu-list>
-        <li data-img="assets/img/food-04-720.webp"><span class="menu-list__name">Готовые рационы</span><span class="menu-list__dots" aria-hidden="true"></span><span class="menu-list__val">58+</span><span class="menu-list__desc">меню на 2–3 дня с завтраками, обедами и перекусами</span></li>
-        <li data-img="assets/img/food-17-720.webp"><span class="menu-list__name">Рецепты с видео</span><span class="menu-list__dots" aria-hidden="true"></span><span class="menu-list__val">210+</span><span class="menu-list__desc">каждый шаг показан — повторит любой</span></li>
-        <li data-img="assets/img/food-12-720.webp"><span class="menu-list__name">Списки покупок</span><span class="menu-list__dots" aria-hidden="true"></span><span class="menu-list__val">к каждому</span><span class="menu-list__desc">что и сколько купить, без лишнего в чеке</span></li>
-        <li data-img="assets/img/food-20-720.webp"><span class="menu-list__name">КБЖУ и граммовки</span><span class="menu-list__dots" aria-hidden="true"></span><span class="menu-list__val">✓</span><span class="menu-list__desc">посчитаны за тебя на каждое блюдо</span></li>
-        <li data-img="assets/img/food-18-720.webp"><span class="menu-list__name">Пересчёт порций</span><span class="menu-list__dots" aria-hidden="true"></span><span class="menu-list__val">1400–1800</span><span class="menu-list__desc">промпт подгонит рацион под твою норму</span></li>
-        <li data-img="assets/img/food-06-720.webp"><span class="menu-list__name">Новые рационы</span><span class="menu-list__dots" aria-hidden="true"></span><span class="menu-list__val">каждую неделю</span><span class="menu-list__desc">появляются, пока у тебя есть доступ</span></li>
-      </ul>
+    <!-- 6. ЧТО ВНУТРИ -->
+    <section class="inside" id="inside" aria-labelledby="inside-title">
+      <div class="inside__grid">
+        <header class="inside__head">
+          <h2 class="inside__title" id="inside-title" data-reveal>Всё, чтобы <em>не думать о еде</em></h2>
+          <p class="inside__note" data-reveal>Закрытый Telegram-канал: ищешь рацион по хэштегу калорийности — и готовишь.</p>
+        </header>
+        <ul class="menu-list" data-menu-list>
+          <li data-img="assets/img/food-04-720.webp"><span class="menu-list__name">Готовые рационы</span><span class="menu-list__dots" aria-hidden="true"></span><span class="menu-list__val">58+</span><span class="menu-list__desc">меню на 2–3 дня с завтраками, обедами и перекусами</span></li>
+          <li data-img="assets/img/food-17-720.webp"><span class="menu-list__name">Рецепты с видео</span><span class="menu-list__dots" aria-hidden="true"></span><span class="menu-list__val">210+</span><span class="menu-list__desc">каждый шаг показан — повторит любой</span></li>
+          <li data-img="assets/img/food-12-720.webp"><span class="menu-list__name">Списки покупок</span><span class="menu-list__dots" aria-hidden="true"></span><span class="menu-list__val">к каждому</span><span class="menu-list__desc">что и сколько купить, без лишнего в чеке</span></li>
+          <li data-img="assets/img/food-20-720.webp"><span class="menu-list__name">КБЖУ и граммовки</span><span class="menu-list__dots" aria-hidden="true"></span><span class="menu-list__val">✓</span><span class="menu-list__desc">посчитаны за тебя на каждое блюдо</span></li>
+          <li data-img="assets/img/food-18-720.webp"><span class="menu-list__name">Пересчёт порций</span><span class="menu-list__dots" aria-hidden="true"></span><span class="menu-list__val">1400–1800</span><span class="menu-list__desc">промпт подгонит рацион под твою норму</span></li>
+          <li data-img="assets/img/food-06-720.webp"><span class="menu-list__name">Новые рационы</span><span class="menu-list__dots" aria-hidden="true"></span><span class="menu-list__val">каждую неделю</span><span class="menu-list__desc">появляются, пока у тебя есть доступ</span></li>
+        </ul>
+      </div>
       <div class="cursor-img" data-cursor-img aria-hidden="true"><img alt=""></div>
     </section>
 
-    <!-- 8. КРИСТИНА -->
-    <section class="about screen" id="about" aria-labelledby="about-title">
-      <figure class="about__photo" data-about-photo>
-        <img src="assets/img/kristina-containers-1400.webp" alt="Кристина Василиу со стопкой контейнеров с едой" width="1400" height="2489" loading="lazy" decoding="async">
-        <figcaption>@vas_kristi</figcaption>
-      </figure>
-      <div class="about__copy">
-        <p class="kicker" data-reveal>кто я</p>
-        <h2 class="about__title" id="about-title" data-reveal>Привет, я <em>Кристина</em></h2>
-        <p class="about__text" data-reveal>Я сама сбросила 13 кг — не на гречке, а на нормальной вкусной еде. Потом выучилась на нутрициолога и собрала систему, по которой живу до сих пор.</p>
-        <p class="about__text" data-reveal>Мой муж Макс раньше вообще не готовил. Теперь сам готовит рационы по видео — и минус 9 кг.</p>
-        <dl class="about__stats" data-reveal>
-          <div><dt>−<span data-count="13">13</span> кг</dt><dd>мой результат</dd></div>
-          <div><dt>−<span data-count="9">9</span> кг</dt><dd>у Макса</dd></div>
-          <div><dt><span data-count="180">180</span>K</dt><dd>читают блог</dd></div>
-          <div><dt><span data-count="4500" data-format="space">4&nbsp;500</span>+</dt><dd>готовят по рационам</dd></div>
-        </dl>
-        <a class="link-u" href="https://www.instagram.com/vas_kristi" target="_blank" rel="noopener" data-reveal>Блог в Instagram — @vas_kristi</a>
+    <!-- 7. КРИСТИНА — на неё наезжают отзывы -->
+    <section class="about layer" id="about" data-layer aria-labelledby="about-title">
+      <div class="about__sticky layer__sticky" data-layer-inner>
+        <figure class="about__photo" data-about-photo>
+          <img src="assets/img/kristina-containers-1400.webp" alt="Кристина Василиу со стопкой контейнеров с едой" width="1400" height="2489" loading="lazy" decoding="async">
+          <figcaption>@vas_kristi</figcaption>
+        </figure>
+        <div class="about__copy">
+          <h2 class="about__title" id="about-title" data-reveal>Привет, я <em>Кристина</em></h2>
+          <p class="about__text" data-reveal>Я сама сбросила 13 кг — не на гречке, а на нормальной вкусной еде. Потом выучилась на нутрициолога и собрала систему, по которой живу до сих пор.</p>
+          <p class="about__text" data-reveal>Мой муж Макс раньше вообще не готовил. Теперь сам готовит рационы по видео — и минус 9 кг.</p>
+          <dl class="about__stats" data-reveal>
+            <div><dt>−<span data-count="13">13</span> кг</dt><dd>мой результат</dd></div>
+            <div><dt>−<span data-count="9">9</span> кг</dt><dd>у Макса</dd></div>
+            <div><dt><span data-count="180">180</span>K</dt><dd>читают блог</dd></div>
+            <div><dt><span data-count="4500" data-format="space">4&nbsp;500</span>+</dt><dd>готовят по рационам</dd></div>
+          </dl>
+          <a class="link-u" href="https://www.instagram.com/vas_kristi" target="_blank" rel="noopener" data-reveal>Блог в Instagram — @vas_kristi</a>
+        </div>
       </div>
     </section>
 
-    <!-- 9. ОТЗЫВЫ — коллаж на скотче -->
-    <section class="reviews screen" id="reviews" aria-labelledby="reviews-title">
-      <header class="reviews__head">
-        <p class="kicker" data-reveal>отзывы</p>
-        <h2 class="reviews__title" id="reviews-title" data-reveal>Что пишут <em>участницы</em></h2>
-        <p class="reviews__note" data-reveal>Первое актуальное с отзывами в Instagram уже заполнилось — пришлось завести второе.</p>
-      </header>
-      <div class="board" data-board>
-        <figure class="bitem bitem--story" style="--x:1%;--y:8%;--r:-5deg" data-drag><span class="tape" aria-hidden="true"></span><img src="assets/img/review-story-2.webp" alt="Сторис: роллы с манго и отзыв Анастасии" width="589" height="1040" loading="lazy" decoding="async" draggable="false"></figure>
-        <blockquote class="bitem bitem--quote" style="--x:15%;--y:2%;--r:3deg" data-drag><span class="tape" aria-hidden="true"></span><p>«Если будете повторять этот рецепт, не забудьте пристегнуть попу — иначе она отлетит от того, как это вкусно!! 100 из 10»</p><cite>Анастасия</cite></blockquote>
-        <figure class="bitem bitem--story" style="--x:30%;--y:12%;--r:4deg" data-drag><span class="tape" aria-hidden="true"></span><img src="assets/img/review-story-1.webp" alt="Сторис: «Самая лучшая покупка — подписка на этот канал»" width="589" height="1040" loading="lazy" decoding="async" draggable="false"></figure>
-        <blockquote class="bitem bitem--quote bitem--lime" style="--x:45%;--y:0%;--r:-3deg" data-drag><span class="tape" aria-hidden="true"></span><p>«Мы с мужем с этой недели с вами. Высчитала себе 1700 ккал в день — завтрак и ужин залетают на ура»</p><cite>участница</cite></blockquote>
-        <figure class="bitem bitem--story" style="--x:59%;--y:14%;--r:-4deg" data-drag><span class="tape" aria-hidden="true"></span><img src="assets/img/review-story-3.webp" alt="Сторис с подборкой фото рационов от участниц" width="589" height="1040" loading="lazy" decoding="async" draggable="false"></figure>
-        <blockquote class="bitem bitem--quote bitem--note" style="--x:73%;--y:4%;--r:2deg" data-drag><span class="tape" aria-hidden="true"></span><p>«Приготовила перчики с рисом из 40 рациона, очень вкусноооо»</p><cite>участница</cite></blockquote>
-        <figure class="bitem bitem--story" style="--x:84%;--y:18%;--r:5deg" data-drag><span class="tape" aria-hidden="true"></span><img src="assets/img/review-story-4.webp" alt="Сторис: участницы присылают фото своих рационов" width="589" height="1040" loading="lazy" decoding="async" draggable="false"></figure>
-        <blockquote class="bitem bitem--quote bitem--olive" style="--x:38%;--y:52%;--r:-2deg" data-drag><span class="tape" aria-hidden="true"></span><p>«Самая лучшая покупка — подписка на этот канал 🙏»</p><cite>Кристина К.</cite></blockquote>
+    <!-- 8. ОТЗЫВЫ — на несколько экранов, заголовок стоит за карточками -->
+    <section class="reviews layer" id="reviews" aria-labelledby="reviews-title">
+      <div class="reviews__titlewrap">
+        <div class="reviews__titlebox">
+          <h2 class="reviews__title" id="reviews-title">Что пишут <em>участницы</em></h2>
+          <p class="reviews__note">Первое актуальное с отзывами в Instagram уже заполнилось — пришлось завести второе.</p>
+        </div>
       </div>
-      <p class="reviews__hint" aria-hidden="true">карточки можно двигать</p>
+      <div class="rv" data-rv>
+        <figure class="rv__item rv__item--story" style="--c:1;--o:0vh;--r:-4deg"><span class="tape" aria-hidden="true"></span><img src="assets/img/review-story-2.webp" alt="Сторис: роллы с манго и отзыв Анастасии" width="589" height="1040" loading="lazy" decoding="async"></figure>
+        <blockquote class="rv__item rv__item--quote" style="--c:3;--o:8vh;--r:3deg"><span class="tape" aria-hidden="true"></span><p>«Если будете повторять этот рецепт, не забудьте пристегнуть попу — иначе она отлетит от того, как это вкусно!! 100 из 10»</p><cite>Анастасия</cite></blockquote>
+        <figure class="rv__item rv__item--chat" style="--c:2;--o:30vh;--r:2deg"><img src="assets/img/review-chat-2.webp" alt="Отзыв: приготовила перчики с рисом из 40 рациона" width="263" height="286" loading="lazy" decoding="async"></figure>
+        <figure class="rv__item rv__item--story" style="--c:3;--o:-6vh;--r:4deg"><span class="tape" aria-hidden="true"></span><img src="assets/img/review-story-1.webp" alt="Сторис: «Самая лучшая покупка — подписка на этот канал»" width="589" height="1040" loading="lazy" decoding="async"></figure>
+        <figure class="rv__item rv__item--chat" style="--c:1;--o:14vh;--r:-2deg"><img src="assets/img/review-chat-3.webp" alt="Отзыв: мы с мужем с этой недели с вами, высчитала себе 1700 ккал" width="274" height="390" loading="lazy" decoding="async"></figure>
+        <blockquote class="rv__item rv__item--quote rv__item--olive" style="--c:2;--o:4vh;--r:-3deg"><span class="tape" aria-hidden="true"></span><p>«Самая лучшая покупка — подписка на этот канал 🙏»</p><cite>Кристина К.</cite></blockquote>
+        <figure class="rv__item rv__item--chat" style="--c:3;--o:22vh;--r:3deg"><img src="assets/img/review-chat-5.webp" alt="Отзыв: давно ничего не скидывала, буду пробовать новые вкусняшки" width="260" height="358" loading="lazy" decoding="async"></figure>
+        <figure class="rv__item rv__item--story" style="--c:1;--o:6vh;--r:-5deg"><span class="tape" aria-hidden="true"></span><img src="assets/img/review-story-3.webp" alt="Сторис с подборкой фото рационов от участниц" width="589" height="1040" loading="lazy" decoding="async"></figure>
+        <figure class="rv__item rv__item--chat" style="--c:2;--o:26vh;--r:-2deg"><img src="assets/img/review-chat-1.webp" alt="Отзыв: недавно начала готовить рационы, это так удобно" width="247" height="337" loading="lazy" decoding="async"></figure>
+        <blockquote class="rv__item rv__item--quote rv__item--note" style="--c:3;--o:10vh;--r:2deg"><span class="tape" aria-hidden="true"></span><p>«Тоже недавно впервые пробовала. Всё очень вкусно, кроме лука в мимозе — нам не понравилось, что он хрустит 😅»</p><cite>честный отзыв</cite></blockquote>
+        <figure class="rv__item rv__item--chat" style="--c:1;--o:20vh;--r:3deg"><img src="assets/img/review-chat-6.webp" alt="Отзыв: я вернулась наконец-то к вам" width="268" height="343" loading="lazy" decoding="async"></figure>
+        <figure class="rv__item rv__item--story" style="--c:2;--o:0vh;--r:4deg"><span class="tape" aria-hidden="true"></span><img src="assets/img/review-story-4.webp" alt="Сторис: участницы присылают фото своих рационов" width="589" height="1040" loading="lazy" decoding="async"></figure>
+        <figure class="rv__item rv__item--chat" style="--c:3;--o:18vh;--r:-3deg"><img src="assets/img/review-chat-7.webp" alt="Отзыв: тоже недавно впервые пробовала, всё очень вкусно" width="247" height="232" loading="lazy" decoding="async"></figure>
+      </div>
     </section>
 
-    <!-- 10. ТАРИФЫ -->
-    <section class="pricing screen" id="pricing" aria-labelledby="pricing-title">
+    <!-- 9. ТАРИФЫ -->
+    <section class="pricing" id="pricing" aria-labelledby="pricing-title">
       <div class="pricing__bg" aria-hidden="true"><img src="assets/img/food-16-wide.webp" alt="" width="1920" height="1080" loading="lazy" decoding="async"></div>
       <header class="pricing__head">
-        <p class="kicker kicker--light" data-reveal>тарифы</p>
         <h2 class="pricing__title" id="pricing-title" data-reveal>Выбери <em>свой доступ</em></h2>
         <p class="pricing__sub" data-reveal>Вся база рационов — в обоих тарифах. Ссылку на канал бот пришлёт сразу после оплаты.</p>
       </header>
@@ -424,32 +377,34 @@
       </div>
     </section>
 
-    <!-- 11. ВОПРОСЫ -->
-    <section class="faq screen" id="faq" aria-labelledby="faq-title">
-      <header class="faq__head">
-        <p class="kicker" data-reveal>вопросы</p>
-        <h2 class="faq__title" id="faq-title" data-reveal>Коротко <em>о главном</em></h2>
-        <p class="faq__contact" data-reveal>Не нашла ответ? Напиши в <a href="https://t.me/VasKristiSub_Bot" target="_blank" rel="noopener">бот</a> или на <a href="mailto:kristina-vasiliu@mail.ru">почту</a>.</p>
-      </header>
-      <div class="faq__list" data-faq>
-        <details><summary><span>Тут только грудка и гречка?</span><i aria-hidden="true"></i></summary><div class="faq__a"><p>Нет. Паста, пицца, выпечка, супы и десерты — всё вписано в КБЖУ. Худеешь за счёт порций, а не запретов.</p></div></details>
-        <details><summary><span>Я почти не умею готовить. Справлюсь?</span><i aria-hidden="true"></i></summary><div class="faq__a"><p>Да. Каждый рецепт показан на видео, последовательность расписана по шагам. Мой муж Макс до этого не готовил вообще.</p></div></details>
-        <details><summary><span>Сколько времени уходит на готовку?</span><i aria-hidden="true"></i></summary><div class="faq__a"><p>1,5–2 часа на рацион, которого хватает на 2–3 дня.</p></div></details>
-        <details><summary><span>Как подобрать калорийность?</span><i aria-hidden="true"></i></summary><div class="faq__a"><p>Рационы рассчитаны на 1400–1800 ккал. Выбираешь ближайший к своей норме или пересчитываешь порции готовым промптом из канала.</p></div></details>
-        <details><summary><span>Можно готовить сразу на семью?</span><i aria-hidden="true"></i></summary><div class="faq__a"><p>Да. Блюда одни, порции у каждого свои — готовить дважды не нужно.</p></div></details>
-        <details><summary><span>Будут автоматические списания?</span><i aria-hidden="true"></i></summary><div class="faq__a"><p>На тарифе «навсегда» — нет, это разовый платёж. «3 месяца» продлевается автоматически, отменить можно в боте в любой момент.</p></div></details>
+    <!-- 10. ВОПРОСЫ — на них наезжает финал -->
+    <section class="faq layer" id="faq" data-layer aria-labelledby="faq-title">
+      <div class="faq__sticky layer__sticky" data-layer-inner>
+        <header class="faq__head">
+          <h2 class="faq__title" id="faq-title" data-reveal>Коротко <em>о главном</em></h2>
+          <p class="faq__contact" data-reveal>Не нашла ответ? Напиши в <a href="https://t.me/VasKristiSub_Bot" target="_blank" rel="noopener">бот</a> или на <a href="mailto:kristina-vasiliu@mail.ru">почту</a>.</p>
+        </header>
+        <div class="faq__list" data-faq>
+          <details><summary><span>Тут только грудка и гречка?</span><i aria-hidden="true"></i></summary><div class="faq__a"><p>Нет. Паста, пицца, выпечка, супы и десерты — всё вписано в КБЖУ. Худеешь за счёт порций, а не запретов.</p></div></details>
+          <details><summary><span>Я почти не умею готовить. Справлюсь?</span><i aria-hidden="true"></i></summary><div class="faq__a"><p>Да. Каждый рецепт показан на видео, последовательность расписана по шагам. Мой муж Макс до этого не готовил вообще.</p></div></details>
+          <details><summary><span>Сколько времени уходит на готовку?</span><i aria-hidden="true"></i></summary><div class="faq__a"><p>1,5–2 часа на рацион, которого хватает на 2–3 дня.</p></div></details>
+          <details><summary><span>Как подобрать калорийность?</span><i aria-hidden="true"></i></summary><div class="faq__a"><p>Рационы рассчитаны на 1400–1800 ккал. Выбираешь ближайший к своей норме или пересчитываешь порции готовым промптом из канала.</p></div></details>
+          <details><summary><span>Можно готовить сразу на семью?</span><i aria-hidden="true"></i></summary><div class="faq__a"><p>Да. Блюда одни, порции у каждого свои — готовить дважды не нужно.</p></div></details>
+          <details><summary><span>Будут автоматические списания?</span><i aria-hidden="true"></i></summary><div class="faq__a"><p>На тарифе «навсегда» — нет, это разовый платёж. «3 месяца» продлевается автоматически, отменить можно в боте в любой момент.</p></div></details>
+        </div>
       </div>
     </section>
 
-    <!-- 12. ФИНАЛ + ПОДВАЛ -->
-    <section class="final screen" aria-labelledby="final-title">
+    <!-- 11. ФИНАЛ + ПОДВАЛ -->
+    <section class="final layer" aria-labelledby="final-title">
       <div class="final__top">
-        <h2 class="final__title" id="final-title" data-reveal>Приготовь один раз — <em>и живи свою жизнь три дня</em></h2>
-        <p class="final__quote" data-reveal>«В жизни и так много сложностей. Пусть хотя бы питание будет простым».<span>— Кристина</span></p>
+        <h2 class="final__title" id="final-title" data-reveal>В жизни и так много сложностей. <em>Пусть хотя бы еда будет простой</em></h2>
+        <p class="final__text" data-reveal>Один вечер у плиты — и три дня ты занимаешься тем, что любишь, а ужин уже ждёт в холодильнике. Я собрала эту систему для себя. Теперь она твоя.</p>
+        <p class="final__sign" data-reveal>— Кристина</p>
       </div>
       <footer class="footer">
         <div class="footer__cols">
-          <a class="logo logo--light" href="#top" aria-label="Что поесть — наверх"><svg class="logo__mark" aria-hidden="true"><use href="#mark"/></svg><span class="logo__word">что поесть</span></a>
+          <a class="logo logo--light" href="#top" aria-label="Что поесть — наверх"><svg class="logo__svg" aria-hidden="true"><use href="#wordmark"/></svg></a>
           <nav class="footer__col" aria-label="Связь">
             <a href="https://www.instagram.com/vas_kristi" target="_blank" rel="noopener">Instagram</a>
             <a href="https://t.me/VasKristiSub_Bot" target="_blank" rel="noopener">Telegram-бот</a>
