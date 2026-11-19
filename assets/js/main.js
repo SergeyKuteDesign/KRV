@@ -380,27 +380,23 @@
       (img.decode ? img.decode() : Promise.resolve()).then(show, show);
     }));
 
-    /* ---------- RIBBONS ---------- */
-    const ribbons = $$('[data-ribbon]').map((tp) => {
-      const textEl = tp.parentNode;
-      const unitText = (tp.dataset.text || tp.textContent.trim()) + ' ✦ ';
-      tp.textContent = unitText;
-      const unit = textEl.getComputedTextLength() || 1500;
-      const path = $(tp.getAttribute('href'));
-      const pathLen = path && path.getTotalLength ? path.getTotalLength() : 3600;
-      tp.textContent = unitText.repeat(Math.ceil(pathLen / unit) + 2);
-      return { tp, unit, dir: +tp.dataset.ribbon, off: 0 };
+    /* ---------- RIBBONS: готовые картинки, едет только transform ---------- */
+    // в картинке 6 периодов волны; фраза повторяется каждые m периодов, трек = 2 копии картинки
+    const ribbonTweens = $$('[data-ribbon]').map((track) => {
+      const dir = +track.dataset.ribbon;
+      const shift = (+track.dataset.m / 12) * 100; // % ширины трека
+      return gsap.fromTo(track, { xPercent: dir > 0 ? 0 : -shift }, { xPercent: dir > 0 ? -shift : 0, duration: +track.dataset.m * 13, ease: 'none', repeat: -1, paused: true });
     });
-    let ribbonsOn = false;
-    new IntersectionObserver(([en]) => (ribbonsOn = en.isIntersecting)).observe($('.ribbons'));
-    if (!reduce) gsap.ticker.add((time, dt) => {
+    let ribbonsOn = false, ribbonSpeed = 1;
+    new IntersectionObserver(([en]) => {
+      ribbonsOn = en.isIntersecting;
+      if (!reduce) ribbonTweens.forEach((t) => (ribbonsOn ? t.play() : t.pause()));
+    }).observe($('[data-ribbons]'));
+    if (!reduce && lenis) gsap.ticker.add(() => {
       if (!ribbonsOn) return;
-      const boost = lenis ? Math.min(Math.abs(lenis.velocity) * 0.5, 12) : 0;
-      ribbons.forEach((r) => {
-        r.off += (0.8 + boost) * (dt / 16.7);
-        const o = r.dir > 0 ? -(r.off % r.unit) - r.unit : -2 * r.unit + (r.off % r.unit);
-        r.tp.setAttribute('startOffset', o.toFixed(1));
-      });
+      const target = 1 + Math.min(Math.abs(lenis.velocity) * 0.06, 2.5);
+      ribbonSpeed += (target - ribbonSpeed) * 0.08;
+      ribbonTweens.forEach((t) => t.timeScale(ribbonSpeed));
     });
 
     /* ---------- INSIDE: фото за курсором ---------- */
@@ -533,7 +529,7 @@
       /* KCAL / INSIDE */
       reveal($$('[data-reveal]', $('#kcal')), '#kcal');
       gsap.fromTo('.kcal__frame', { clipPath: 'inset(14% 14% 14% 14% round 26px)' }, { clipPath: 'inset(0% 0% 0% 0% round 26px)', duration: 1.4, ease: 'expo.out', scrollTrigger: { trigger: '#kcal', start: 'top 65%', ...rev } });
-      gsap.fromTo('.ribbons__svg', { opacity: 0, yPercent: 14 }, { opacity: 1, yPercent: 0, duration: 1.2, ease: 'expo.out', scrollTrigger: { trigger: '.ribbons', start: 'top 85%', ...rev } });
+      gsap.fromTo('.ribbons__track', { opacity: 0 }, { opacity: 1, duration: 1, ease: 'power2.out', scrollTrigger: { trigger: '.ribbons', start: 'top 85%', ...rev } });
       reveal($$('[data-reveal]', $('#inside')), '#inside');
       reveal($$('.menu-list li'), '.menu-list', 'top 82%');
 

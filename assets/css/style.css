@@ -189,8 +189,6 @@ html:not(.js) .loader, .no-loader .loader { display: none; }
 .dock:hover { box-shadow: 0 22px 50px -12px rgba(20, 18, 11, .7); }
 .dock__ava { position: relative; width: 46px; height: 46px; flex: none; }
 .dock__ava img { width: 100%; height: 100%; border-radius: 50%; object-fit: cover; }
-.dock__ava::after { content: ""; position: absolute; inset: -4px; border-radius: 50%; border: 1.5px solid var(--lime); animation: ring 2.6s var(--ease) infinite; }
-@keyframes ring { 0% { transform: scale(.9); opacity: 1; } 75%, 100% { transform: scale(1.35); opacity: 0; } }
 .dock__label { font-family: var(--serif); font-stretch: 62.5%; font-style: italic; font-size: 24px; line-height: 1; padding-bottom: 2px; white-space: nowrap; }
 .dock__price { font-size: 13px; color: var(--lime); white-space: nowrap; }
 
@@ -352,13 +350,10 @@ html:not(.js) .loader, .no-loader .loader { display: none; }
 /* =========================================================
    RIBBONS
    ========================================================= */
-.ribbons { height: clamp(200px, 26vw, 380px); overflow: clip; background: var(--milk); }
-.ribbons__svg { width: 100%; height: 100%; overflow: visible; }
-.ribbons__band { fill: none; stroke-width: 62; }
-.ribbons__band--lime { stroke: var(--lime-2); }
-.ribbons__band--olive { stroke: var(--olive-deep); }
-.ribbons__text { font-family: var(--sans); font-size: 27px; font-weight: 600; letter-spacing: .06em; text-transform: uppercase; fill: var(--olive-deep); dominant-baseline: central; }
-.ribbons__text--light { fill: var(--lime); }
+.ribbons { height: clamp(170px, 22vw, 360px); overflow: clip; background: var(--milk); contain: paint; }
+/* лента = готовая картинка (отрисована заранее), двигается только transform → дёшево для GPU */
+.ribbons__track { position: absolute; left: 0; top: 0; height: 100%; display: flex; will-change: transform; backface-visibility: hidden; }
+.ribbons__track img { height: 100%; width: auto; aspect-ratio: 12 / 1; max-width: none; flex: none; user-select: none; pointer-events: none; }
 
 /* =========================================================
    6. INSIDE
@@ -592,7 +587,6 @@ html:not(.js) .loader, .no-loader .loader { display: none; }
   .kcal__switch button { flex: 1; padding: 0; height: 42px; font-size: 20px; }
   .kcal__frame { width: min(100%, 44svh * .8); }
 
-  .ribbons { height: 170px; }
 
   .inside__grid { grid-template-columns: 1fr; gap: 20px; }
   .inside__title { font-size: clamp(34px, 10vw, 46px); }

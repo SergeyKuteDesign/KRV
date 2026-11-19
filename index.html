@@ -120,7 +120,7 @@
 
   <!-- CTA: из центра видео-карточки «оседает» вниз и живёт там до конца страницы -->
   <button class="dock" type="button" data-dock aria-haspopup="dialog" aria-controls="access" aria-expanded="false">
-    <span class="dock__ava" aria-hidden="true"><img src="assets/img/kristina-ava.webp" alt="" width="120" height="120"></span>
+    <span class="dock__ava" aria-hidden="true"><img src="assets/img/dock-food.webp" alt="" width="132" height="132"></span>
     <span class="dock__label">получить доступ</span>
     <span class="dock__price">от&nbsp;1&nbsp;190&nbsp;₽</span>
   </button>
@@ -267,17 +267,9 @@
       </div>
     </section>
 
-    <section class="ribbons" aria-label="Что едят на рационах">
-      <svg class="ribbons__svg" viewBox="0 0 1440 360" preserveAspectRatio="xMidYMid meet" aria-hidden="true">
-        <defs>
-          <path id="rb1" d="M-900,210 C -500,90 -200,260 180,150 C 520,52 700,300 1000,200 C 1260,112 1480,150 2340,170"/>
-          <path id="rb2" d="M-900,120 C -500,250 -200,90 200,170 C 560,240 760,70 1060,170 C 1300,250 1520,210 2340,140"/>
-        </defs>
-        <use href="#rb2" class="ribbons__band ribbons__band--olive"/>
-        <text class="ribbons__text ribbons__text--light"><textPath href="#rb2" data-ribbon="-1" data-text="не грудка с гречкой ✦ не диета ✦ не марафон ✦ без запретов">не грудка с гречкой ✦ не диета ✦ не марафон ✦ без запретов ✦ </textPath></text>
-        <use href="#rb1" class="ribbons__band ribbons__band--lime"/>
-        <text class="ribbons__text"><textPath href="#rb1" data-ribbon="1" data-text="паста ✦ пицца ✦ хачапури ✦ лазанья ✦ супы ✦ брауни ✦ креветки ✦ роллы с манго ✦ и да, шоколадки">паста ✦ пицца ✦ хачапури ✦ лазанья ✦ супы ✦ брауни ✦ креветки ✦ роллы с манго ✦ и да, шоколадки ✦ </textPath></text>
-      </svg>
+    <section class="ribbons" aria-label="Что едят на рационах" data-ribbons>
+      <div class="ribbons__track" data-ribbon="-1" data-m="3" aria-hidden="true"><img src="assets/img/ribbon-olive.webp" alt="" width="6480" height="540" loading="lazy" decoding="async"><img src="assets/img/ribbon-olive.webp" alt="" width="6480" height="540" loading="lazy" decoding="async"></div>
+      <div class="ribbons__track" data-ribbon="1" data-m="2" aria-hidden="true"><img src="assets/img/ribbon-lime.webp" alt="" width="6480" height="540" loading="lazy" decoding="async"><img src="assets/img/ribbon-lime.webp" alt="" width="6480" height="540" loading="lazy" decoding="async"></div>
       <p class="sr-only">В рационах есть паста, пицца, хачапури, лазанья, супы, брауни, креветки, роллы с манго и шоколадки — это не диета и не марафон.</p>
     </section>
 
