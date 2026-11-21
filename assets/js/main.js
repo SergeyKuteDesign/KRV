@@ -1,6 +1,6 @@
 /* =========================================================
    Что поесть — interactions v3
-   GSAP + ScrollTrigger. Сцены на position: sticky,
+   GSAP + ScrollTrigger + Lenis. Сцены на position: sticky,
    все эффекты привязаны к прогрессу скролла → работают в обе стороны.
    ========================================================= */
 (() => {
@@ -16,17 +16,14 @@
   const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
   const DESK = '(min-width: 768px)';
   const MOB = '(max-width: 767px)';
-  const desktop = matchMedia(DESK);
-  const isDesk = () => desktop.matches;
+  const isDesk = () => matchMedia(DESK).matches;
   const INK = '#1D1B14', PAPER = '#FFFDF6';
 
   typograph(document.body);
 
   if (!window.gsap || !window.ScrollTrigger) { root.classList.remove('js'); root.classList.add('no-loader'); return; }
   try {
-    root.classList.add('js');
     gsap.registerPlugin(ScrollTrigger);
-    ScrollTrigger.config({ ignoreMobileResize: true });
     init();
     root.classList.add('ready');
   } catch (err) {
@@ -70,36 +67,18 @@
     });
   }
 
-  function initRibbons() {
-    const section = $('[data-ribbons]');
-    if (!section || !window.IntersectionObserver) return;
-    const video = $('video', section);
-    const motion = matchMedia('(prefers-reduced-motion: reduce)');
-    let visible = false;
-
-    function syncPlayback() {
-      if (!visible || document.hidden || motion.matches || navigator.connection?.saveData) {
-        video.pause();
-        return;
-      }
-      if (!video.hasAttribute('src')) video.src = video.dataset.src;
-      if (video.paused) video.play().catch(() => {});
-    }
-
-    new IntersectionObserver(([entry]) => {
-      visible = entry.isIntersecting && entry.intersectionRatio >= .08;
-      syncPlayback();
-    }, { threshold: .08 }).observe(section);
-    video.addEventListener('playing', () => video.classList.add('is-playing'), { once: true });
-    video.addEventListener('error', () => video.classList.remove('is-playing'));
-    document.addEventListener('visibilitychange', syncPlayback);
-    if (motion.addEventListener) motion.addEventListener('change', syncPlayback);
-  }
-
   function init() {
+    /* ---------- smooth scroll ---------- */
+    let lenis = null;
+    if (!reduce && window.Lenis) {
+      lenis = new Lenis({ lerp: 0.11, smoothWheel: true });
+      lenis.on('scroll', ScrollTrigger.update);
+      gsap.ticker.add((t) => lenis.raf(t * 1000));
+      gsap.ticker.lagSmoothing(0);
+    }
     let locks = 0;
-    const lock = () => { if (++locks === 1) document.body.classList.add('is-locked'); };
-    const unlock = () => { if (locks > 0 && --locks === 0) document.body.classList.remove('is-locked'); };
+    const lock = () => { if (++locks === 1) { if (lenis) lenis.stop(); document.body.classList.add('is-locked'); } };
+    const unlock = () => { if (locks > 0 && --locks === 0) { if (lenis) lenis.start(); document.body.classList.remove('is-locked'); } };
 
     const nav = $('[data-nav]');
     const burger = $('[data-menu-open]');
@@ -117,135 +96,79 @@
     const floats = $$('[data-float]');
     let menuOpen = false, accessOpen = false, heroP = 0, introDone = false;
 
-    const heroStage = $('[data-hero-sticky]');
-    const viewport = window.visualViewport;
-    const H = { W: 0, H: 0, cardW: 0, cardH: 0, cy: 0, dist: 1, ctaY: 0, dockH: 60 };
-    const floatDir = [[-1, -0.6, -14], [-1, 0.6, 12], [1, -0.6, 12], [1, 0.6, -12]];
-    const floatSpeed = [1.25, 1.55, 1.1, 1.45];
-    const mobileFloats = [0, 3];
-    let dockGap = 0;
-    let dockInset = 0;
-    let dockPosition = '';
-    let lastHeroProgress = -1;
-    let heroFrame = 0;
-    let videoInView = false;
-
-    function syncVideo() {
-      if (!introDone || !videoInView || document.hidden || reduce || navigator.connection?.saveData) {
-        video.pause();
-        return;
-      }
-      if (!video.getAttribute('src')) video.src = isDesk() ? 'assets/video/hero-wide.mp4' : 'assets/video/hero-640.mp4';
-      if (video.paused) video.play().catch(() => {});
-    }
-
-    video.addEventListener('playing', () => video.classList.add('is-playing'));
-    new IntersectionObserver(([entry]) => {
-      videoInView = entry.isIntersecting;
-      syncVideo();
-    }, { threshold: 0.05 }).observe(media);
-    document.addEventListener('visibilitychange', syncVideo);
-
-    function measureHero() {
-      H.W = heroStage.clientWidth;
-      H.H = heroStage.clientHeight;
-      if (isDesk()) {
-        H.cardH = Math.min(H.H * 0.46, (H.W * 0.56) / 1.9);
-        H.cardW = H.cardH * 1.9;
-        H.cy = H.H * 0.51;
-        H.dist = H.H * 1.55;
-      } else {
-        H.cardW = H.W * 0.82;
-        H.cardH = Math.min(H.H * 0.52, H.cardW * 1.25);
-        H.cy = H.H * 0.53;
-        H.dist = H.H * 1.15;
-      }
-      H.dockH = dock.offsetHeight;
-      H.ctaY = ctaSlot.offsetTop;
-      dockInset = parseFloat(getComputedStyle(dock).bottom) - dockGap;
-      lastHeroProgress = -1;
-    }
-
-    function positionDock() {
-      const layoutHeight = root.clientHeight;
-      // Fixed positioning follows the layout viewport. Browser bars can leave a
-      // shorter visual viewport without changing the stable hero scene size.
-      const nextGap = viewport && viewport.scale === 1
-        ? Math.max(0, layoutHeight - viewport.height - viewport.offsetTop) : 0;
-      if (Math.abs(nextGap - dockGap) > 0.5) {
-        dockGap = nextGap;
-        dock.style.setProperty('--dock-viewport-gap', `${dockGap}px`);
-      }
-
-      let offset = 0;
-      if (heroP < 0.76) {
-        const yDock = layoutHeight - H.dockH - dockInset - dockGap;
-        const yCta = Math.min(H.ctaY, yDock);
-        if (reduce) {
-          offset = scrollY < 24 ? yCta - yDock : 0;
-        } else {
-          const yCard = H.cy - H.dockH / 2;
-          const toCard = easeIO(clamp(heroP / 0.42));
-          const toBottom = easeIO(clamp((heroP - 0.5) / 0.26));
-          const y = heroP < 0.5 ? lerp(yCta, yCard, toCard) : lerp(yCard, yDock, toBottom);
-          offset = Math.min(0, y - yDock);
-        }
-      }
-      const value = `${offset.toFixed(1)}px`;
-      if (value !== dockPosition) {
-        dockPosition = value;
-        dock.style.setProperty('--dock-shift', value);
-      }
-    }
-
-    function renderHero() {
-      heroFrame = 0;
-      const P = heroP;
-      if (introDone) positionDock();
-      if (!reduce && P !== lastHeroProgress) {
-        lastHeroProgress = P;
-        const { W, H: height, cardW, cardH, cy } = H;
-        const shape = easeIO(clamp(P / 0.42));
-        const exit = easeIO(clamp((P - 0.5) / 0.46));
-        const side = lerp(0, (W - cardW) / 2, shape).toFixed(1);
-        media.style.clipPath = P === 0 ? '' : `inset(${lerp(0, cy - cardH / 2, shape).toFixed(1)}px ${side}px ${lerp(0, height - cy - cardH / 2, shape).toFixed(1)}px round ${lerp(0, 28, shape).toFixed(1)}px)`;
-        media.style.transform = `translate3d(0, ${(-exit * (cy + cardH / 2 + 40)).toFixed(1)}px, 0)`;
-        media.style.visibility = exit >= 1 ? 'hidden' : 'visible';
-        shade.style.opacity = lerp(1, 0.35, shape).toFixed(3);
-
-        const fade = clamp(P / 0.18);
-        content.style.opacity = (1 - fade).toFixed(3);
-        content.style.transform = `translate3d(0, ${(-30 * fade).toFixed(1)}px, 0)`;
-        content.style.visibility = fade >= 1 ? 'hidden' : 'visible';
-
-        floats.forEach((el, i) => {
-          if (!isDesk() && !mobileFloats.includes(i)) return;
-          const appear = easeOut(clamp((P - 0.1 - i * 0.045) / 0.3));
-          const [dx, dy, rot] = floatDir[i];
-          const x = (1 - appear) * dx * W * 0.32;
-          const y = (1 - appear) * dy * height * 0.25 - exit * height * floatSpeed[i];
-          el.style.opacity = appear.toFixed(3);
-          el.style.transform = `translate3d(${x.toFixed(1)}px, ${y.toFixed(1)}px, 0) rotate(${((1 - appear) * rot).toFixed(2)}deg)`;
-        });
-      }
-    }
-    const queueHero = () => { if (!heroFrame) heroFrame = requestAnimationFrame(renderHero); };
-
-    measureHero();
-    if (reduce) window.addEventListener('scroll', queueHero, { passive: true });
-    else ScrollTrigger.create({
-      trigger: hero, start: 'top top', end: () => '+=' + Math.round(H.dist),
-      onUpdate: (self) => { heroP = self.progress; queueHero(); },
-      onRefresh: (self) => { measureHero(); heroP = self.progress; queueHero(); },
+    /* ---------- видео ---------- */
+    const wide = isDesk();
+    video.poster = wide ? 'assets/img/hero-poster-wide.webp' : 'assets/img/hero-poster.webp';
+    video.src = wide ? 'assets/video/hero-wide.mp4' : 'assets/video/hero-640.mp4';
+    const playVideo = () => { const p = video.play(); if (p && p.catch) p.catch(() => {}); };
+    const videoReady = new Promise((res) => {
+      if (video.readyState >= 3) return res();
+      video.addEventListener('canplay', res, { once: true });
+      video.addEventListener('error', res, { once: true });
+      setTimeout(res, 3500);
     });
 
-    new ResizeObserver(() => { measureHero(); queueHero(); }).observe(heroStage);
-    document.fonts?.ready.then(() => { measureHero(); queueHero(); });
-    // Both events matter when the mobile browser changes chrome and offset in
-    // separate frames. They only update the dock, never the scroll timeline.
-    viewport?.addEventListener('resize', queueHero, { passive: true });
-    viewport?.addEventListener('scroll', queueHero, { passive: true });
-    window.addEventListener('resize', queueHero, { passive: true });
+    /* =====================================================
+       HERO-сцена: видео → карточка → текст позади
+       ===================================================== */
+    const safeProbe = document.createElement('div');
+    safeProbe.style.cssText = 'position:fixed;left:0;bottom:0;width:0;height:env(safe-area-inset-bottom);visibility:hidden;pointer-events:none';
+    document.body.appendChild(safeProbe);
+    const H = { W: 0, H: 0, cardW: 0, cardH: 0, cy: 0, dist: 1, ctaY: 0, dockH: 60, safe: 0 };
+    const floatDir = [[-1, -0.6, -14], [-1, 0.6, 12], [1, -0.6, 12], [1, 0.6, -12]];
+    const floatSpeed = [1.25, 1.55, 1.1, 1.45];
+    const measureHero = () => {
+      H.W = innerWidth; H.H = innerHeight;
+      if (isDesk()) { H.cardH = Math.min(H.H * 0.46, (H.W * 0.56) / 1.9); H.cardW = H.cardH * 1.9; H.cy = H.H * 0.51; H.dist = H.H * 2.4; }
+      else { H.cardW = H.W * 0.84; H.cardH = Math.min(H.H * 0.54, H.cardW * 1.3); H.cy = H.H * 0.5; H.dist = H.H * 1.8; }
+      H.dockH = dock.offsetHeight || 60;
+      H.safe = safeProbe.offsetHeight;
+      // слот лежит в .hero__content (inset: 0 в sticky-кадре) → offsetTop = позиция на экране, без учёта анимаций
+      H.ctaY = ctaSlot.offsetTop;
+    };
+
+    const dockAt = (y) => { dock.style.transform = `translate3d(-50%, ${y.toFixed(1)}px, 0)`; };
+    const renderHero = () => {
+      const P = heroP;
+      const { W, cardW, cardH, cy } = H;
+      const Hh = H.H;
+      const s = easeIO(clamp(P / 0.42));
+      const f = easeIO(clamp((P - 0.5) / 0.46));
+      // карточка
+      const topIn = lerp(0, cy - cardH / 2, s), botIn = lerp(0, Hh - cy - cardH / 2, s), sideIn = lerp(0, (W - cardW) / 2, s);
+      media.style.clipPath = `inset(${topIn.toFixed(1)}px ${sideIn.toFixed(1)}px ${botIn.toFixed(1)}px ${sideIn.toFixed(1)}px round ${lerp(0, 28, s).toFixed(1)}px)`;
+      media.style.transform = `translate3d(0, ${(-f * (cy + cardH / 2 + 40)).toFixed(1)}px, 0)`;
+      shade.style.opacity = lerp(1, 0.35, s).toFixed(3);
+      // текст hero уходит
+      const c = clamp(P / 0.16);
+      content.style.opacity = (1 - c).toFixed(3);
+      content.style.transform = `translate3d(0, ${(-50 * clamp(P / 0.24)).toFixed(1)}px, 0)`;
+      content.style.visibility = c >= 1 ? 'hidden' : 'visible';
+      // элементы по бокам
+      floats.forEach((el, i) => {
+        if (el.offsetParent === null) return;
+        const e = easeOut(clamp((P - 0.1 - i * 0.045) / 0.3));
+        const [dx, dy, rot] = floatDir[i];
+        const x = (1 - e) * dx * W * 0.32;
+        const y = (1 - e) * dy * Hh * 0.25 - f * Hh * floatSpeed[i];
+        el.style.opacity = e.toFixed(3);
+        el.style.transform = `translate3d(${x.toFixed(1)}px, ${y.toFixed(1)}px, 0) rotate(${((1 - e) * rot).toFixed(2)}deg)`;
+      });
+      // кнопка: под текстом → центр карточки → низ экрана
+      if (introDone) {
+        const yCta = H.ctaY, yCard = cy - H.dockH / 2, yDock = Hh - H.dockH - 16 - H.safe;
+        const d = easeIO(clamp((P - 0.5) / 0.2));
+        dockAt(P < 0.5 ? lerp(yCta, yCard, s) : lerp(yCard, yDock, d));
+      }
+    };
+    measureHero(); renderHero();
+    const heroST = ScrollTrigger.create({
+      trigger: hero, start: 'top top', end: () => '+=' + Math.round(H.dist),
+      onUpdate: (self) => { heroP = self.progress; renderHero(); },
+      onRefresh: (self) => { measureHero(); heroP = self.progress; renderHero(); },
+    });
+    window.addEventListener('resize', () => { measureHero(); renderHero(); });
+    new IntersectionObserver(([en]) => (en.isIntersecting ? playVideo() : video.pause()), { rootMargin: '0px' }).observe(media);
 
     /* ---------- scrim / lock helpers ---------- */
     const showScrim = () => { scrim.hidden = false; gsap.to(scrim, { opacity: 1, duration: 0.4, overwrite: true }); };
@@ -282,7 +205,7 @@
       })
         .to(access, { left: r1.left, top: r1.top, width: r1.width, height: r1.height, borderRadius: end, backgroundColor: PAPER, duration: reduce ? 0.01 : 0.75, ease: 'expo.out' }, 0)
         .to(accessInner, { opacity: 1, duration: 0.3 }, 0.2)
-        .fromTo(accessInner.children, { y: 12, opacity: 0 }, { y: 0, opacity: 1, duration: 0.35, stagger: 0.03, ease: 'power2.out', clearProps: 'transform,opacity' }, 0.2);
+        .fromTo(accessInner.children, { y: 16, filter: 'blur(6px)' }, { y: 0, filter: 'blur(0px)', duration: 0.6, stagger: 0.04, ease: 'power3.out', clearProps: 'filter' }, 0.2);
       setTimeout(() => $('.sheet__close', access).focus({ preventScroll: true }), 400);
     }
     function closeAccess(mode) {
@@ -297,7 +220,6 @@
           gsap.set(accessInner, { clearProps: 'all' });
           accessInner.style.width = '';
           dock.classList.remove('is-morph');
-          dock.focus({ preventScroll: true });
           hideScrim(); unlock(); res();
         };
         gsap.killTweensOf([access, accessInner]);
@@ -332,7 +254,7 @@
         lock(); showScrim();
         gsap.fromTo(menu, { y: '100%' }, { y: 0, duration: 0.7, ease: 'expo.out' });
       }
-      gsap.fromTo(menuKids(), { opacity: 0, y: 12 }, { opacity: 1, y: 0, duration: 0.35, stagger: 0.03, ease: 'power2.out', delay: 0.08, clearProps: 'transform,opacity' });
+      gsap.fromTo(menuKids(), { opacity: 0, y: 20, filter: 'blur(8px)' }, { opacity: 1, y: 0, filter: 'blur(0px)', duration: 0.7, stagger: 0.04, ease: 'power3.out', delay: 0.1, clearProps: 'filter' });
     }
     function closeMenu(mode) {
       if (!menuOpen) return Promise.resolve();
@@ -381,9 +303,13 @@
     draggable(access, closeAccess);
 
     /* ---------- якоря ---------- */
-    const goTo = (target) => {
-      const top = target === hero ? 0 : target.getBoundingClientRect().top + scrollY;
-      window.scrollTo({ top, behavior: reduce ? 'instant' : 'smooth' });
+    const goTo = (t) => {
+      if (t === hero) { if (lenis) lenis.scrollTo(0, { duration: 1.6 }); else window.scrollTo({ top: 0, behavior: 'smooth' }); return; }
+      // для секций-слоёв докручиваем до момента, когда слой полностью наехал
+      const layered = t.matches('.mission, .steps, .why, .reviews, .final');
+      const y = t.getBoundingClientRect().top + (lenis ? lenis.scroll : scrollY) + (layered ? 0 : 0);
+      if (lenis) lenis.scrollTo(y, { duration: 1.6, easing: (x) => 1 - Math.pow(1 - x, 4) });
+      else window.scrollTo({ top: y, behavior: reduce ? 'auto' : 'smooth' });
     };
     document.addEventListener('click', (e) => {
       const a = e.target.closest('a[href^="#"]');
@@ -395,148 +321,99 @@
       Promise.all([closeMenu(), closeAccess()]).then(() => goTo(t));
     });
 
-    /* ---------- Заставка ---------- */
+    /* =====================================================
+       Прелоадер (≥ 2 с): надпись пишется от руки
+       ===================================================== */
     const loader = $('[data-loader]');
-    if (reduce || root.classList.contains('no-loader')) {
-      loader.remove();
-      requestAnimationFrame(heroIntro);
-    } else {
-      lock();
-      gsap.delayedCall(0.53, () => {
-        gsap.set(loader, { pointerEvents: 'none' });
-        unlock();
-        gsap.to(loader, { opacity: 0, duration: 0.28, ease: 'power2.out', onComplete: () => loader.remove() });
-        heroIntro();
-      });
+    const lpath = $('[data-loader-path]');
+    const lbar = $('[data-loader-bar]');
+    lock();
+    gsap.to(lpath, { strokeDashoffset: 0, duration: reduce ? 0.01 : 1.7, ease: 'power2.inOut', delay: 0.15 });
+    gsap.to('.loader__hint', { opacity: 1, duration: 0.6, delay: 0.7 });
+    const lp = gsap.to(lbar, { scaleX: 0.85, duration: 1.9, ease: 'power2.out' });
+    const fontsReady = document.fonts ? document.fonts.ready : Promise.resolve();
+    const posterReady = new Promise((res) => { const i = new Image(); i.onload = i.onerror = res; i.src = video.poster; });
+    const assetsReady = Promise.race([Promise.all([fontsReady, posterReady, videoReady]), new Promise((r) => setTimeout(r, 5000))]);
+    Promise.all([assetsReady, new Promise((r) => setTimeout(r, reduce ? 500 : 2200))]).then(() => {
+      lp.kill();
+      gsap.to(lbar, { scaleX: 1, duration: 0.35, ease: 'power2.inOut', onComplete: exitLoader });
+    });
+    function exitLoader() {
+      gsap.timeline({ onComplete: () => loader.remove() })
+        .to('.loader__inner', { y: -30, opacity: 0, duration: 0.5, ease: 'power2.in' }, 0)
+        .to(loader, { clipPath: 'inset(0% 0% 100% 0%)', duration: 1, ease: 'expo.inOut' }, 0.2)
+        .add(heroIntro, 0.45);
     }
-
     function heroIntro() {
+      playVideo();
       measureHero();
       introDone = true;
       renderHero();
-      syncVideo();
-      dock.classList.add('is-ready');
-      setupScroll();
-      ScrollTrigger.refresh();
-      if (!reduce && heroP < 0.06) {
-        gsap.fromTo('[data-intro]', { opacity: 0.72, y: 12 }, {
-          opacity: 1, y: 0, duration: 0.46, stagger: 0.06, ease: 'power2.out', clearProps: 'transform,opacity',
-        });
-      }
+      gsap.timeline()
+        .add(() => { unlock(); setupScroll(); ScrollTrigger.refresh(); }, 0.6)
+        .fromTo(video, { scale: 1.12 }, { scale: 1, duration: 2, ease: 'expo.out', clearProps: 'transform' }, 0)
+        .fromTo('[data-intro]', { opacity: 0, y: 30, filter: 'blur(12px)' }, { opacity: 1, y: 0, filter: 'blur(0px)', duration: 1.3, stagger: 0.12, ease: 'expo.out', clearProps: 'filter' }, 0.1)
+        .add(() => dock.classList.add('is-ready'), 0.5);
     }
 
-    /* ---------- Калорийность и фото рациона ---------- */
-    const switcher = $('.kcal__switch');
-    const options = $$('button', switcher);
+    /* ---------- KCAL ---------- */
+    const sw = $('.kcal__switch');
+    const swBtns = $$('button', sw);
     const frame = $('[data-kcal-frame]');
-    const caption = $('[data-kcal-caption]');
-    let activeOption = options.find((button) => button.getAttribute('aria-selected') === 'true');
-    let requestedOption = activeOption;
-    let request = 0;
-    let activePhoto = $('img', frame);
-    const photos = new Map([[activeOption.dataset.k, activePhoto]]);
-    const movePill = () => {
-      switcher.style.setProperty('--pill-x', activeOption.offsetLeft + 'px');
-      switcher.style.setProperty('--pill-w', activeOption.offsetWidth + 'px');
-    };
-    new ResizeObserver(movePill).observe(switcher);
-    movePill();
-
-    async function selectRation(button) {
-      if (button === requestedOption) return;
-      requestedOption = button;
-      const currentRequest = ++request;
-      if (button === activeOption) {
-        frame.removeAttribute('aria-busy');
-        return;
-      }
-
-      const kcal = button.dataset.k;
-      let photo = photos.get(kcal);
-      if (!photo) {
-        photo = new Image(900, 1125);
-        photo.alt = `Рацион на ${kcal} ккал в контейнерах`;
-        photo.src = `assets/img/ration-${kcal}.webp`;
-        photos.set(kcal, photo);
-      }
-
-      frame.setAttribute('aria-busy', 'true');
-      try {
-        await photo.decode();
-      } catch {
-        photos.delete(kcal);
-        if (currentRequest === request) {
-          requestedOption = activeOption;
-          frame.removeAttribute('aria-busy');
-        }
-        return;
-      }
-      if (currentRequest !== request) return;
-      gsap.killTweensOf(activePhoto);
-      activePhoto.replaceWith(photo);
-      activePhoto = photo;
-      activeOption = button;
-      options.forEach((option) => {
-        const selected = option === button;
-        option.classList.toggle('on', selected);
-        option.setAttribute('aria-selected', String(selected));
-        option.tabIndex = selected ? 0 : -1;
-      });
-      frame.setAttribute('aria-labelledby', button.id);
-      caption.textContent = `${kcal} ккал в день`;
-      frame.removeAttribute('aria-busy');
-      movePill();
-      if (!reduce) gsap.fromTo(photo, { opacity: 0.72 }, { opacity: 1, duration: 0.28, clearProps: 'opacity' });
-    }
-
-    options.forEach((button) => button.addEventListener('click', () => selectRation(button)));
-    switcher.addEventListener('keydown', (event) => {
-      const index = options.indexOf(event.target);
-      if (index < 0) return;
-      const next = { ArrowLeft: (index + options.length - 1) % options.length, ArrowRight: (index + 1) % options.length, Home: 0, End: options.length - 1 }[event.key];
-      if (next === undefined) return;
-      event.preventDefault();
-      options[next].focus();
-      selectRation(options[next]);
-    });
-
-    /* ---------- RIBBONS ---------- */
-    initRibbons();
-
-    /* ---------- Фото рядом со списком ---------- */
-    const insidePreview = $('[data-inside-preview]');
-    const insideItems = $$('[data-menu-list] li');
-    const pointer = matchMedia('(hover: hover) and (min-width: 768px)');
-    let previewRequest = 0;
-    insideItems.forEach((item) => item.addEventListener('pointerenter', async () => {
-      if (!pointer.matches) return;
-      const currentRequest = ++previewRequest;
-      const active = $('img', insidePreview);
-      if (active.getAttribute('src') === item.dataset.img) return;
-      const photo = new Image(720, 1280);
-      photo.alt = '';
-      photo.src = item.dataset.img;
-      try { await photo.decode(); } catch { return; }
-      if (currentRequest !== previewRequest) return;
-      active.replaceWith(photo);
-      if (!reduce) gsap.fromTo(photo, { opacity: 0.7 }, { opacity: 1, duration: 0.22 });
+    const movePill = (b) => { sw.style.setProperty('--pill-x', b.offsetLeft + 'px'); sw.style.setProperty('--pill-w', b.offsetWidth + 'px'); };
+    const curBtn = () => swBtns.find((b) => b.classList.contains('on'));
+    movePill(curBtn());
+    window.addEventListener('resize', () => movePill(curBtn()));
+    if (document.fonts) document.fonts.ready.then(() => movePill(curBtn()));
+    swBtns.forEach((b) => b.addEventListener('click', () => {
+      if (b.classList.contains('on')) return;
+      swBtns.forEach((x) => { x.classList.toggle('on', x === b); x.setAttribute('aria-selected', String(x === b)); });
+      movePill(b);
+      const k = b.dataset.k;
+      const img = new Image();
+      img.alt = `Реальный рацион на ${k} ккал в контейнерах`;
+      img.src = `assets/img/ration-${k}.webp`;
+      const show = () => {
+        frame.appendChild(img);
+        gsap.fromTo(img, { clipPath: 'inset(100% 0% 0% 0%)', scale: 1.15 }, { clipPath: 'inset(0% 0% 0% 0%)', scale: 1, duration: 1.05, ease: 'expo.inOut', onComplete: () => $$('img', frame).forEach((x) => x !== img && x.remove()) });
+      };
+      (img.decode ? img.decode() : Promise.resolve()).then(show, show);
     }));
 
-    /* ---------- Края горизонтальных списков ---------- */
-    const mobile = matchMedia(MOB);
-    $$('[data-card-rail]').forEach((rail) => {
-      const track = $('[data-rail-track]', rail);
-      const update = () => {
-        const overflow = track.scrollWidth - track.clientWidth;
-        rail.classList.toggle('has-prev', mobile.matches && track.scrollLeft > 2);
-        rail.classList.toggle('has-next', mobile.matches && overflow - track.scrollLeft > 2);
-        track.tabIndex = mobile.matches && overflow > 2 ? 0 : -1;
-      };
-      track.addEventListener('scroll', update, { passive: true });
-      new ResizeObserver(update).observe(track);
-      mobile.addEventListener('change', update);
-      update();
+    /* ---------- RIBBONS: готовые картинки, едет только transform ---------- */
+    // в картинке 6 периодов волны; фраза повторяется каждые m периодов, трек = 2 копии картинки
+    const ribbonTweens = $$('[data-ribbon]').map((track) => {
+      const dir = +track.dataset.ribbon;
+      const shift = (+track.dataset.m / 12) * 100; // % ширины трека
+      return gsap.fromTo(track, { xPercent: dir > 0 ? 0 : -shift }, { xPercent: dir > 0 ? -shift : 0, duration: +track.dataset.m * 13, ease: 'none', repeat: -1, paused: true });
     });
+    let ribbonsOn = false, ribbonSpeed = 1;
+    new IntersectionObserver(([en]) => {
+      ribbonsOn = en.isIntersecting;
+      if (!reduce) ribbonTweens.forEach((t) => (ribbonsOn ? t.play() : t.pause()));
+    }).observe($('[data-ribbons]'));
+    if (!reduce && lenis) gsap.ticker.add(() => {
+      if (!ribbonsOn) return;
+      const target = 1 + Math.min(Math.abs(lenis.velocity) * 0.06, 2.5);
+      ribbonSpeed += (target - ribbonSpeed) * 0.08;
+      ribbonTweens.forEach((t) => t.timeScale(ribbonSpeed));
+    });
+
+    /* ---------- INSIDE: фото за курсором ---------- */
+    const list = $('[data-menu-list]');
+    const ci = $('[data-cursor-img]');
+    if (list && ci && matchMedia('(hover: hover) and (min-width: 768px)').matches) {
+      const cimg = $('img', ci);
+      let mx = 0, my = 0, cx = 0, cy = 0, on = false;
+      list.addEventListener('mousemove', (e) => { mx = e.clientX; my = e.clientY; if (!on) { cx = mx; cy = my; } });
+      $$('li', list).forEach((li) => li.addEventListener('mouseenter', () => { if (cimg.getAttribute('src') !== li.dataset.img) cimg.src = li.dataset.img; ci.classList.add('is-on'); on = true; }));
+      list.addEventListener('mouseleave', () => { ci.classList.remove('is-on'); on = false; });
+      gsap.ticker.add(() => {
+        if (!on && !ci.classList.contains('is-on')) return;
+        cx += (mx - cx) * 0.14; cy += (my - cy) * 0.14;
+        ci.style.transform = `translate3d(${cx + 34}px, ${cy - 150}px, 0) rotate(${clamp((mx - cx) * 0.12, -14, 14)}deg)`;
+      });
+    }
 
     /* ---------- PRICING: вкладки на телефоне ---------- */
     const tabs = $$('[data-plan-tab]');
@@ -545,107 +422,196 @@
       const i = +b.dataset.planTab;
       tabs.forEach((x) => { x.classList.toggle('on', x === b); x.setAttribute('aria-selected', String(x === b)); });
       plans.forEach((p, k) => p.classList.toggle('is-active', k === i));
-      if (!reduce) gsap.fromTo(plans[i], { opacity: 0.8, y: 8 }, { opacity: 1, y: 0, duration: 0.28, ease: 'power2.out', clearProps: 'opacity,transform' });
+      gsap.fromTo(plans[i], { opacity: 0, y: 18, filter: 'blur(8px)' }, { opacity: 1, y: 0, filter: 'blur(0px)', duration: 0.6, ease: 'expo.out', clearProps: 'filter' });
     }));
+
+    /* ---------- FAQ ---------- */
+    $$('[data-faq] details').forEach((d) => {
+      const s = $('summary', d), a = $('.faq__a', d);
+      s.addEventListener('click', (e) => {
+        e.preventDefault();
+        if (d.open) {
+          gsap.to(a, { height: 0, duration: 0.45, ease: 'power3.inOut', onComplete: () => { d.open = false; a.style.height = ''; } });
+        } else {
+          $$('[data-faq] details[open]').forEach((o) => { const oa = $('.faq__a', o); gsap.to(oa, { height: 0, duration: 0.4, ease: 'power3.inOut', onComplete: () => { o.open = false; oa.style.height = ''; } }); });
+          d.open = true;
+          gsap.fromTo(a, { height: 0 }, { height: 'auto', duration: 0.6, ease: 'expo.out', onComplete: () => { a.style.height = ''; } });
+        }
+      });
+    });
 
     /* =====================================================
        Скролл-сцены (все на scrub/toggle → работают в обе стороны)
        ===================================================== */
     function setupScroll() {
-      let lastNavScroll = scrollY;
-      const updateNav = () => {
-        const y = scrollY;
-        if (Math.abs(y - lastNavScroll) < 7 && y > 80) return;
-        nav.classList.toggle('is-hidden', !menuOpen && y > 140 && y > lastNavScroll && !nav.contains(document.activeElement));
-        lastNavScroll = y;
-      };
-      window.addEventListener('scroll', updateNav, { passive: true });
-      if (reduce) return;
-
       const mm = gsap.matchMedia();
-      const reveal = (elements, trigger, start = 'top 85%') => {
-        if (!elements.length) return;
-        gsap.fromTo(elements, { opacity: 0.72, y: 14 }, {
-          opacity: 1, y: 0, duration: 0.44, stagger: 0.05, ease: 'power2.out',
-          scrollTrigger: { trigger, start, once: true },
-        });
+      const rev = { toggleActions: 'play none none reverse' };
+      const reveal = (els, trigger, start = 'top 72%') => {
+        if (!els.length) return;
+        gsap.fromTo(els, { opacity: 0, y: 30, filter: 'blur(10px)' }, { opacity: 1, y: 0, filter: 'blur(0px)', duration: 1.1, stagger: 0.08, ease: 'expo.out', scrollTrigger: { trigger, start, ...rev } });
       };
-      // A covered section stays legible until most of it has left the screen.
+      // наслаивание: уходящий слой уменьшается и размывается
       const layer = (target, next) => {
-        gsap.fromTo(target, { scale: 1, opacity: 1 }, {
-          scale: 0.975, opacity: 0.94, ease: 'none',
-          scrollTrigger: { trigger: next, start: 'top 42%', end: 'top top', scrub: true },
+        gsap.fromTo(target, { scale: 1, opacity: 1, filter: 'blur(0px)' }, {
+          scale: 0.92, opacity: 0.45, filter: 'blur(8px)', ease: 'none',
+          scrollTrigger: { trigger: next, start: 'top bottom', end: 'top top', scrub: true },
         });
       };
 
       layer('[data-statement]', '#pain');
-      reveal($$('[data-reveal]', $('#pain')), '#pain');
+      reveal($$('[data-reveal]', $('#pain')), '#pain', 'top 60%');
+      const herbs = $('[data-herbs]');
+      if (herbs) {
+        const parts = drawHerbs(herbs);
+        gsap.set(parts.stems, { strokeDasharray: (i, el) => el.getTotalLength(), strokeDashoffset: (i, el) => el.getTotalLength() });
+        gsap.set(parts.dots, { scale: 0, transformOrigin: '50% 50%' });
+        gsap.timeline({ scrollTrigger: { trigger: '#pain', start: 'top 45%', ...rev } })
+          .to(parts.stems, { strokeDashoffset: 0, duration: 1.8, stagger: 0.03, ease: 'power2.out' })
+          .to(parts.dots, { scale: 1, duration: 0.6, stagger: 0.008, ease: 'back.out(2)' }, 0.7);
+      }
       layer('.mission__sticky', '#how');
 
+      /* STEPS: 4 экрана сменяют друг друга */
       const stepsSec = $('[data-steps]');
-      const stepsStage = $('.steps__sticky', stepsSec);
-      const steps = $$('[data-step]', stepsSec);
-      const images = $$('[data-step-img]', stepsSec);
-      const bars = $$('[data-step-bar]', stepsSec);
-      const number = $('[data-step-num]', stepsSec);
-      let currentStep = 0;
-      let stepSize = 1;
-      function showStep(index) {
-        if (index === currentStep) return;
-        const direction = index > currentStep ? 1 : -1;
-        currentStep = index;
-        gsap.killTweensOf([...steps, ...images, number]);
-        gsap.set([...steps, ...images], { clearProps: 'transform,opacity' });
-        steps.forEach((step, i) => step.classList.toggle('is-active', i === index));
-        images.forEach((photo, i) => photo.classList.toggle('is-active', i === index));
-        gsap.fromTo(steps[index], { opacity: 0.72, y: direction * 10 }, {
-          opacity: 1, y: 0, duration: 0.27, ease: 'power2.out', clearProps: 'opacity,transform',
-        });
-        gsap.fromTo(images[index], { opacity: 0.7 }, { opacity: 1, duration: 0.28, clearProps: 'opacity' });
-        number.textContent = String(index + 1).padStart(2, '0');
-        gsap.fromTo(number, { yPercent: direction * 45 }, { yPercent: 0, duration: 0.27, ease: 'power2.out' });
-      }
-      function updateSteps(self) {
-        const progress = clamp((self.scroll() - self.start) / stepSize);
-        bars.forEach((bar, i) => bar.style.setProperty('--p', clamp(progress * steps.length - i).toFixed(3)));
-        showStep(clamp(Math.floor(progress * steps.length), 0, steps.length - 1));
-      }
+      const steps = $$('[data-step]');
+      const simgs = $$('[data-step-img]');
+      const bars = $$('[data-step-bar]');
+      const num = $('[data-step-num]');
+      let cur = 0;
+      const showStep = (i, dir) => {
+        if (i === cur) return;
+        const prev = cur; cur = i;
+        const out = steps[prev], inn = steps[i];
+        gsap.killTweensOf([out, inn, ...out.children, ...inn.children]);
+        steps.forEach((s, k) => { if (k !== prev && k !== i) { s.classList.remove('is-active'); gsap.set(s, { clearProps: 'all' }); } });
+        gsap.to(out, { opacity: 0, y: dir > 0 ? -36 : 36, filter: 'blur(12px)', duration: 0.45, ease: 'power2.in', onComplete: () => { out.classList.remove('is-active'); gsap.set(out, { clearProps: 'all' }); } });
+        inn.classList.add('is-active');
+        gsap.set(inn, { opacity: 1, y: 0, filter: 'none' });
+        gsap.fromTo(inn.children, { opacity: 0, y: dir > 0 ? 46 : -46, filter: 'blur(16px)' }, { opacity: 1, y: 0, filter: 'blur(0px)', duration: 1, stagger: 0.09, ease: 'expo.out', delay: 0.24, clearProps: 'filter' });
+        const of = simgs[prev], nf = simgs[i];
+        simgs.forEach((f, k) => { if (k !== prev && k !== i) { gsap.killTweensOf(f); gsap.set(f, { opacity: 0, zIndex: 0, clearProps: 'clipPath' }); } });
+        gsap.killTweensOf([of, nf, $('img', of), $('img', nf)]);
+        gsap.set(of, { zIndex: 1, opacity: 1 }); gsap.set(nf, { zIndex: 2, opacity: 1 });
+        gsap.fromTo(nf, { clipPath: dir > 0 ? 'inset(100% 0% 0% 0%)' : 'inset(0% 0% 100% 0%)' }, { clipPath: 'inset(0% 0% 0% 0%)', duration: 1.1, ease: 'expo.inOut' });
+        gsap.fromTo($('img', nf), { scale: 1.18 }, { scale: 1, duration: 1.5, ease: 'expo.out' });
+        gsap.to($('img', of), { scale: 1.06, duration: 1.1, ease: 'expo.inOut', onComplete: () => { gsap.set(of, { opacity: 0, zIndex: 0 }); gsap.set($('img', of), { scale: 1 }); } });
+        num.textContent = String(i + 1).padStart(2, '0');
+        gsap.fromTo(num, { yPercent: dir > 0 ? 100 : -100 }, { yPercent: 0, duration: 0.7, ease: 'expo.out' });
+      };
       ScrollTrigger.create({
-        trigger: stepsSec, start: 'top top', end: () => {
-          stepSize = Math.max(1, stepsSec.offsetHeight - 2 * stepsStage.offsetHeight);
-          return '+=' + stepSize;
+        trigger: stepsSec, start: 'top top', end: () => '+=' + Math.round(innerHeight * (isDesk() ? 3 : 1.6)),
+        onUpdate: (self) => {
+          const p = self.progress;
+          bars.forEach((b, k) => b.style.setProperty('--p', clamp(p * 4 - k).toFixed(3)));
+          const i = clamp(Math.floor(p * 4), 0, 3);
+          if (i !== cur) showStep(i, i > cur ? 1 : -1);
         },
-        onRefresh: updateSteps,
-        onUpdate: updateSteps,
       });
       layer('.steps__sticky', '#why');
 
+      /* WHY: панели наслаиваются друг на друга (десктоп) */
       mm.add(DESK, () => {
         const panels = $$('[data-why-panel]');
-        panels.slice(1).forEach((panel, i) => layer($('.why__box', panels[i]), panel));
+        panels.forEach((p, i) => {
+          if (!i) return;
+          gsap.fromTo($('.why__box', panels[i - 1]), { scale: 1, filter: 'blur(0px)', opacity: 1 }, {
+            scale: 0.9, filter: 'blur(8px)', opacity: 0.6, ease: 'none',
+            scrollTrigger: { trigger: p, start: 'top bottom', end: 'top top', scrub: true },
+          });
+          gsap.fromTo($$('.why__copy > *, .why__img', p), { opacity: 0, y: 50 }, { opacity: 1, y: 0, stagger: 0.06, ease: 'none', scrollTrigger: { trigger: p, start: 'top 85%', end: 'top 15%', scrub: true } });
+        });
+        reveal($$('[data-reveal]', $('#why')), '#why', 'top 55%');
       });
-      reveal($$('[data-reveal]', $('#why')), '#why');
+      mm.add(MOB, () => {
+        reveal([...$$('[data-reveal]', $('#why')), ...$$('.why__track .why__panel')], '#why', 'top 60%');
+      });
+
+      /* KCAL / INSIDE */
       reveal($$('[data-reveal]', $('#kcal')), '#kcal');
+      gsap.fromTo('.kcal__frame', { clipPath: 'inset(14% 14% 14% 14% round 26px)' }, { clipPath: 'inset(0% 0% 0% 0% round 26px)', duration: 1.4, ease: 'expo.out', scrollTrigger: { trigger: '#kcal', start: 'top 65%', ...rev } });
+      gsap.fromTo('.ribbons__track', { opacity: 0 }, { opacity: 1, duration: 1, ease: 'power2.out', scrollTrigger: { trigger: '.ribbons', start: 'top 85%', ...rev } });
       reveal($$('[data-reveal]', $('#inside')), '#inside');
-      reveal($$('[data-reveal]', $('#about')), '#about');
+      reveal($$('.menu-list li'), '.menu-list', 'top 82%');
+
+      /* ABOUT → на него наезжают отзывы */
+      reveal($$('[data-reveal]', $('#about')), '#about', 'top 60%');
+      gsap.fromTo('.about__photo', { clipPath: 'inset(100% 0% 0% 0% round 999px 999px 24px 24px)' }, { clipPath: 'inset(0% 0% 0% 0% round 999px 999px 24px 24px)', duration: 1.6, ease: 'expo.inOut', scrollTrigger: { trigger: '#about', start: 'top 60%', ...rev } });
+      $$('[data-count]').forEach((el) => {
+        const end = +el.dataset.count;
+        const fmt = (v) => (el.dataset.format === 'space' ? Math.round(v).toLocaleString('ru-RU').replace(/\s/g, ' ') : Math.round(v));
+        const o = { v: 0 };
+        ScrollTrigger.create({ trigger: '#about', start: 'top 50%', onEnter: () => gsap.to(o, { v: end, duration: 1.8, ease: 'power3.out', onUpdate: () => (el.textContent = fmt(o.v)) }) });
+      });
       layer('.about__sticky', '#reviews');
 
-      /* REVIEWS: карточки проходят поверх закреплённого заголовка */
+      /* REVIEWS: карточки проплывают поверх заголовка, тают у верхнего края */
       mm.add(DESK, () => {
-        $$('.rv__item').forEach((item) => {
-          const card = $('.rv__card', item);
-          gsap.timeline({ scrollTrigger: { trigger: item, start: 'top 100%', end: 'bottom top', scrub: true } })
-            .fromTo(card, { opacity: .45, y: 38 }, { opacity: 1, y: 0, duration: .18, ease: 'power2.out' })
-            .to(card, { duration: .68 })
-            .to(card, { opacity: .5, y: -24, duration: .14, ease: 'power2.in' });
+        gsap.fromTo('.reviews__titlebox', { opacity: 0, y: 40, filter: 'blur(12px)' }, { opacity: 1, y: 0, filter: 'blur(0px)', duration: 1.2, ease: 'expo.out', scrollTrigger: { trigger: '#reviews', start: 'top 40%', ...rev } });
+        $$('.rv__item').forEach((it) => {
+          gsap.timeline({ scrollTrigger: { trigger: it, start: 'top bottom', end: 'bottom top', scrub: true } })
+            .fromTo(it, { opacity: 0, y: 120, scale: 0.92, filter: 'blur(10px)' }, { opacity: 1, y: 0, scale: 1, filter: 'blur(0px)', duration: 0.28, ease: 'power2.out' })
+            .to(it, { duration: 0.44 })
+            .to(it, { opacity: 0, y: -60, scale: 0.9, filter: 'blur(8px)', duration: 0.28, ease: 'power2.in' });
         });
       });
+      mm.add(MOB, () => reveal([...$$('.reviews__titlebox > *'), ...$$('.rv__item').slice(0, 3)], '#reviews', 'top 60%'));
 
+      /* PRICING */
       reveal($$('[data-reveal]', $('#pricing')), '#pricing');
-      reveal($$('[data-reveal]', $('#faq')), '#faq');
+      gsap.fromTo('.pricing__bg img', { yPercent: -6 }, { yPercent: 6, ease: 'none', scrollTrigger: { trigger: '#pricing', start: 'top bottom', end: 'bottom top', scrub: true } });
+      gsap.fromTo('[data-plan], .plans-tabs', { opacity: 0, y: 60, filter: 'blur(12px)' }, { opacity: 1, y: 0, filter: 'blur(0px)', duration: 1.2, stagger: 0.12, ease: 'expo.out', scrollTrigger: { trigger: '.plans', start: 'top 88%', ...rev } });
+
+      /* FAQ → финал наезжает */
+      reveal([...$$('[data-reveal]', $('#faq')), ...$$('[data-faq] details')], '#faq', 'top 60%');
       layer('.faq__sticky', '.final');
-      reveal($$('[data-reveal]', $('.final')), '.final');
+      reveal($$('[data-reveal]', $('.final')), '.final', 'top 55%');
+
+      /* шапка прячется при скролле вниз */
+      ScrollTrigger.create({ start: 0, end: 'max', onUpdate: (self) => { if (menuOpen) return; nav.classList.toggle('is-hidden', self.direction === 1 && self.scroll() > 200); } });
     }
 
+    /* травы в блоке «Дело не в силе воли» */
+    function drawHerbs(svg) {
+      const NS = 'http://www.w3.org/2000/svg';
+      const W = 1440, Hh = 300;
+      svg.setAttribute('viewBox', `0 0 ${W} ${Hh}`);
+      svg.setAttribute('preserveAspectRatio', 'xMidYMax slice');
+      let seed = 11;
+      const rnd = () => (seed = (seed * 16807) % 2147483647) / 2147483647;
+      const mk = (t, a) => { const e = document.createElementNS(NS, t); for (const k in a) e.setAttribute(k, a[k]); return e; };
+      const stems = [], dots = [];
+      [24, 70, 118, 170, 214, 262, 1180, 1226, 1270, 1318, 1366, 1414].forEach((x0, idx) => {
+        const h = 110 + rnd() * 170, lean = (rnd() - 0.5) * 90;
+        const x1 = x0 + lean * 0.35, y1 = Hh - h * 0.55, x2 = x0 + lean, y2 = Hh - h;
+        const stem = mk('path', { d: `M${x0},${Hh + 4} Q${x1.toFixed(1)},${y1.toFixed(1)} ${x2.toFixed(1)},${y2.toFixed(1)}`, class: 'stem' });
+        svg.appendChild(stem); stems.push(stem);
+        const n = 3 + Math.floor(rnd() * 4);
+        for (let i = 1; i <= n; i++) {
+          const t = i / (n + 1.4);
+          const px = (1 - t) * (1 - t) * x0 + 2 * (1 - t) * t * x1 + t * t * x2;
+          const py = (1 - t) * (1 - t) * (Hh + 4) + 2 * (1 - t) * t * y1 + t * t * y2;
+          const side = i % 2 ? 1 : -1;
+          const ang = (-90 + side * (38 + rnd() * 26)) * Math.PI / 180;
+          const L = 12 + rnd() * 14, w = 3.4 + rnd() * 2;
+          const tx = px + Math.cos(ang) * L, ty = py + Math.sin(ang) * L;
+          const mx = (px + tx) / 2, my = (py + ty) / 2, nx = -Math.sin(ang) * w, ny = Math.cos(ang) * w;
+          const leaf = mk('path', { d: `M${px.toFixed(1)},${py.toFixed(1)} Q${(mx + nx).toFixed(1)},${(my + ny).toFixed(1)} ${tx.toFixed(1)},${ty.toFixed(1)} Q${(mx - nx).toFixed(1)},${(my - ny).toFixed(1)} ${px.toFixed(1)},${py.toFixed(1)}Z`, class: 'leaf' });
+          svg.appendChild(leaf); dots.push(leaf);
+        }
+        if (idx % 2 === 0) {
+          const k = 7 + Math.floor(rnd() * 4);
+          for (let j = 0; j < k; j++) {
+            const a = -Math.PI / 2 + (j - (k - 1) / 2) * 0.3;
+            const r = 16 + rnd() * 12;
+            const bx = x2 + Math.cos(a) * r, by = y2 + Math.sin(a) * r;
+            const ray = mk('path', { d: `M${x2.toFixed(1)},${y2.toFixed(1)} L${bx.toFixed(1)},${by.toFixed(1)}`, class: 'stem' });
+            svg.appendChild(ray); stems.push(ray);
+            const bud = mk('circle', { cx: bx.toFixed(1), cy: by.toFixed(1), r: (2.2 + rnd() * 1.4).toFixed(1), class: 'bud' });
+            svg.appendChild(bud); dots.push(bud);
+          }
+        }
+      });
+      return { stems, dots };
+    }
   }
 })();

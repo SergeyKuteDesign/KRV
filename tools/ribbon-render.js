@@ -1,83 +1,39 @@
-// Generate the curved ribbon loop and matching fallback poster.
-// Requires Playwright, Sharp, Chromium and FFmpeg. Run from the repository root:
-// node tools/ribbon-render.js /path/to/chromium
-const { spawn } = require('node:child_process');
-const { once } = require('node:events');
-const { writeFile } = require('node:fs/promises');
-const { chromium } = require('playwright');
+// Перерисовать ленты после смены текста: npm i puppeteer-core sharp && node tools/ribbon-render.js assets/img
+// (путь к Chrome ниже — поправьте под свою систему; в index.html data-m у треков должно совпасть с выводом m)
+const puppeteer = require('puppeteer-core');
 const sharp = require('sharp');
-
-const width = 1440;
-const height = 320;
-const fps = 30;
-const frames = 360;
+const outDir = process.argv[2];
 const html = `<!doctype html><meta charset="utf-8">
 <link href="https://fonts.googleapis.com/css2?family=Geist:wght@600&display=swap" rel="stylesheet">
-<style>
-  body { margin: 0; background: #f7f5ec; }
-  svg { display: block; }
-  path { fill: none; stroke-width: 60; }
-  text { font: 600 26px Geist, sans-serif; letter-spacing: .07em; text-transform: uppercase; dominant-baseline: central; }
-</style>
-<svg width="${width}" height="${height}" viewBox="0 0 1440 320" xmlns="http://www.w3.org/2000/svg">
-  <path id="olive" stroke="#2e3520" d="M-1200 146 C-870 235 -540 257 -167 212 S351 70 634 168 S1038 268 1360 184 S1910 58 2560 201"/>
-  <text fill="#dce7a9"><textPath href="#olive">не грудка с гречкой ✦ не диета ✦ не марафон ✦ без запретов</textPath></text>
-  <path id="lime" stroke="#cfe08a" d="M-1200 245 C-800 145 -472 70 -100 174 S458 271 734 183 S1122 110 1498 188 S1980 257 2560 130"/>
-  <text fill="#2e3520"><textPath href="#lime">паста ✦ пицца ✦ хачапури ✦ лазанья ✦ супы ✦ брауни ✦ креветки ✦ роллы с манго ✦ и да, шоколадки</textPath></text>
-</svg>`;
-
-async function render() {
-  const browser = await chromium.launch({ executablePath: process.argv[2] });
-  try {
-    const page = await browser.newPage({
-      viewport: { width, height },
-      ignoreHTTPSErrors: true
-    });
-    await page.setContent(html, { waitUntil: 'load' });
-    await page.evaluate(async () => {
-      if (!(await document.fonts.load('600 26px Geist', 'паста')).length) {
-        throw new Error('Geist is required to render the ribbons');
-      }
-      window.ribbons = Array.from(document.querySelectorAll('textPath'), (letters) => {
-        const path = document.querySelector(letters.getAttribute('href'));
-        const phrase = letters.textContent + '\u00a0✦\u00a0';
-        letters.textContent = phrase;
-        const period = letters.getComputedTextLength();
-        letters.textContent = phrase.repeat(Math.ceil(path.getTotalLength() / period) + 2);
-        return { letters, period };
-      });
-    });
-
-    const encoder = spawn('ffmpeg', [
-      '-loglevel', 'error', '-y', '-f', 'image2pipe', '-framerate', String(fps), '-i', 'pipe:0',
-      '-an', '-vf', 'scale=1260:280', '-c:v', 'libx264', '-threads', '2',
-      '-preset', 'slow', '-tune', 'animation', '-crf', '32', '-g', '120', '-pix_fmt', 'yuv420p',
-      '-movflags', '+faststart', 'assets/video/ribbons.mp4'
-    ], { stdio: ['pipe', 'ignore', 'inherit'] });
-    const encoded = once(encoder, 'exit');
-    const capture = await page.context().newCDPSession(page);
-    try {
-      for (let frame = 0; frame < frames; frame++) {
-        await page.evaluate((progress) => {
-          const [olive, lime] = window.ribbons;
-          olive.letters.setAttribute('startOffset', (progress - 1) * olive.period);
-          lime.letters.setAttribute('startOffset', -progress * lime.period);
-        }, frame / frames);
-        const { data } = await capture.send('Page.captureScreenshot', { format: 'png' });
-        const image = Buffer.from(data, 'base64');
-        if (frame === 0) await writeFile('assets/img/ribbons-poster.webp', await sharp(image).webp({ quality: 88 }).toBuffer());
-        if (!encoder.stdin.write(image)) await once(encoder.stdin, 'drain');
-      }
-    } finally {
-      encoder.stdin.end();
-    }
-    const [code] = await encoded;
-    if (code !== 0) throw new Error('FFmpeg could not encode the ribbon loop');
-  } finally {
-    await browser.close();
+<style>html,body{margin:0;background:transparent}svg{display:block;width:4320px;height:360px;overflow:visible}
+.band{fill:none;stroke-width:62}.lime{stroke:#CFE08A}.olive{stroke:#2E3520}
+text{font-family:Geist;font-size:27px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;dominant-baseline:central}
+.t-lime{fill:#2E3520}.t-olive{fill:#DCE7A9}</style>
+<svg id="olive" viewBox="0 0 4320 360"><path class="band olive" id="p2"/><text class="t-olive"><textPath href="#p2"></textPath></text></svg>
+<svg id="lime" viewBox="0 0 4320 360"><path class="band lime" id="p1"/><text class="t-lime"><textPath href="#p1"></textPath></text></svg>
+<script>
+const RP=720,RTOTAL=12,RAMP=92,RSTART=-720;
+const wave=(y0,phase)=>{let d='M'+RSTART+','+y0;for(let i=0;i<RTOTAL*2;i++){const s=(i+phase)%2===0?-1:1;d+=i===0?' c120,'+s*RAMP+' 240,'+s*RAMP+' 360,0':' s240,'+s*RAMP+' 360,0';}return d;};
+window.build=()=>{const res={};
+for(const [id,y0,ph,phrase] of [['lime',166,0,'паста ✦ пицца ✦ хачапури ✦ лазанья ✦ супы ✦ брауни ✦ креветки ✦ роллы с манго ✦ и да, шоколадки'],['olive',194,1,'не грудка с гречкой ✦ не диета ✦ не марафон ✦ без запретов']]){
+ const svg=document.getElementById(id),path=svg.querySelector('path'),tp=svg.querySelector('textPath'),text=svg.querySelector('text');
+ path.setAttribute('d',wave(y0,ph));const unit=phrase+' ✦ ';tp.textContent=unit;const U=text.getComputedTextLength();const total=path.getTotalLength();const Lp=total/RTOTAL;
+ let best={m:1,q:1,score:9};[1,2,3].forEach(m=>{const q=Math.max(1,Math.round(m*Lp/U));const sc=Math.abs(m*Lp/(q*U)-1);if(sc<best.score-0.02)best={m,q,score:sc};});
+ tp.textContent=unit.repeat(best.q*RTOTAL/best.m);text.setAttribute('textLength',total.toFixed(1));text.setAttribute('lengthAdjust','spacing');res[id]=best;}
+ return res;};
+</script>`;
+(async () => {
+  const b = await puppeteer.launch({ executablePath: 'C:/Program Files/Google/Chrome/Application/chrome.exe', headless: 'new' });
+  const p = await b.newPage();
+  await p.setViewport({ width: 4320, height: 800, deviceScaleFactor: 1.5 });
+  await p.setContent(html, { waitUntil: 'networkidle0' });
+  await p.evaluate(async () => { await document.fonts.load('600 27px Geist', 'паста ✦'); await document.fonts.ready; if (!document.fonts.check('600 27px Geist', 'паста')) throw new Error('Geist not loaded'); });
+  const res = await p.evaluate(() => window.build());
+  for (const id of ['lime', 'olive']) {
+    const el = await p.$('#' + id);
+    const png = await el.screenshot({ omitBackground: true, type: 'png' });
+    const info = await sharp(png).webp({ quality: 88, alphaQuality: 90, effort: 6 }).toFile(`${outDir}/ribbon-${id}.webp`);
+    console.log(id, JSON.stringify(res[id]), info.width + 'x' + info.height, Math.round(info.size / 1024) + 'KB');
   }
-}
-render().catch((error) => {
-  console.error(error);
-  process.exitCode = 1;
-});
+  await b.close();
+})();
