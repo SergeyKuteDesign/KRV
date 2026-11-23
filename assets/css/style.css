@@ -8,6 +8,12 @@
 @font-face { font-family: "Lobster"; font-style: normal; font-weight: 400; font-display: swap; src: url("../fonts/lobster-cyrillic.woff2") format("woff2"); unicode-range: U+0301, U+0400-045F, U+0490-0491, U+04B0-04B1, U+2116; }
 @font-face { font-family: "Lobster"; font-style: normal; font-weight: 400; font-display: swap; src: url("../fonts/lobster-latin-ext.woff2") format("woff2"); unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C4, U+2113, U+2C60-2C7F, U+A720-A7FF; }
 @font-face { font-family: "Lobster"; font-style: normal; font-weight: 400; font-display: swap; src: url("../fonts/lobster-latin.woff2") format("woff2"); unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD; }
+@font-face { font-family: "Noto Serif Display"; font-style: normal; font-weight: 400; font-stretch: 62.5%; font-display: swap; src: url("../fonts/noto-cyrillic.woff2") format("woff2"); unicode-range: U+0301, U+0400-045F, U+0490-0491, U+04B0-04B1, U+2116; }
+@font-face { font-family: "Noto Serif Display"; font-style: normal; font-weight: 400; font-stretch: 62.5%; font-display: swap; src: url("../fonts/noto-latin-ext.woff2") format("woff2"); unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C4, U+2113, U+2C60-2C7F, U+A720-A7FF; }
+@font-face { font-family: "Noto Serif Display"; font-style: normal; font-weight: 400; font-stretch: 62.5%; font-display: swap; src: url("../fonts/noto-latin.woff2") format("woff2"); unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD; }
+@font-face { font-family: "Noto Serif Display"; font-style: italic; font-weight: 400; font-stretch: 62.5%; font-display: swap; src: url("../fonts/noto-italic-cyrillic.woff2") format("woff2"); unicode-range: U+0301, U+0400-045F, U+0490-0491, U+04B0-04B1, U+2116; }
+@font-face { font-family: "Noto Serif Display"; font-style: italic; font-weight: 400; font-stretch: 62.5%; font-display: swap; src: url("../fonts/noto-italic-latin-ext.woff2") format("woff2"); unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C4, U+2113, U+2C60-2C7F, U+A720-A7FF; }
+@font-face { font-family: "Noto Serif Display"; font-style: italic; font-weight: 400; font-stretch: 62.5%; font-display: swap; src: url("../fonts/noto-italic-latin.woff2") format("woff2"); unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD; }
 @font-face { font-family: "Geist"; font-style: normal; font-weight: 400 600; font-display: swap; src: url("../fonts/geist-cyrillic.woff2") format("woff2"); unicode-range: U+0301, U+0400-045F, U+0490-0491, U+04B0-04B1, U+2116; }
 @font-face { font-family: "Geist"; font-style: normal; font-weight: 400 600; font-display: swap; src: url("../fonts/geist-latin-ext.woff2") format("woff2"); unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C4, U+2113, U+2C60-2C7F, U+A720-A7FF; }
 @font-face { font-family: "Geist"; font-style: normal; font-weight: 400 600; font-display: swap; src: url("../fonts/geist-latin.woff2") format("woff2"); unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD; }
@@ -29,7 +35,8 @@
   --line: rgba(29, 27, 20, .13);
   --line-light: rgba(247, 245, 236, .18);
 
-  --display: "Lobster", Georgia, "Times New Roman", serif;
+  --logo: "Lobster", Georgia, serif; /* только название «Что поесть» */
+  --display: "Noto Serif Display", "Times New Roman", Georgia, serif;
   --sans: "Geist", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
 
   --vh: 100vh;
@@ -68,10 +75,10 @@ button { font: inherit; color: inherit; }
 
 /* заголовки — Lobster: у него нет курсива и жирного, акценты — цветом */
 h1, h2, h3, .display {
-  font-family: var(--display); font-weight: 400; font-style: normal; font-synthesis: none;
-  letter-spacing: 0; line-height: 1.04; text-wrap: balance;
+  font-family: var(--display); font-weight: 400; font-synthesis: none;
+  font-stretch: 62.5%; letter-spacing: -.01em; line-height: .95; text-wrap: balance;
 }
-h1 em, h2 em, h3 em { font-style: normal; }
+h1 em, h2 em, h3 em { font-style: italic; }
 p { text-wrap: pretty; }
 
 .sr-only, .skip:not(:focus) { position: absolute !important; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0; }
@@ -109,7 +116,7 @@ main > section { position: relative; }
 .logo { display: inline-flex; align-items: center; gap: 8px; color: var(--olive-deep); text-decoration: none; }
 .logo__mascot { width: 42px; height: 42px; margin: -6px 0 -4px -6px; flex: none; transform-origin: 50% 90%; transition: transform .6s cubic-bezier(.34, 1.56, .64, 1); }
 .logo:hover .logo__mascot { transform: rotate(-8deg) translateY(-2px); }
-.logo__word { font-family: var(--display); font-size: 25px; line-height: 1; padding-bottom: 2px; white-space: nowrap; }
+.logo__word { font-family: var(--logo); font-size: 25px; line-height: 1; padding-bottom: 2px; white-space: nowrap; }
 .logo--light { color: var(--lime); gap: 12px; }
 .logo--light .logo__mascot { width: 58px; height: 58px; margin: 0; padding: 6px; border-radius: 50%; background: var(--milk); }
 .logo--light .logo__word { font-size: 34px; }
@@ -123,7 +130,7 @@ html:not(.js) .loader, .no-loader .loader { display: none; }
 .loader__stage { position: relative; width: clamp(128px, 36vw, 172px); aspect-ratio: 1; }
 .loader__mascot { position: relative; z-index: 1; width: 100%; height: 100%; opacity: 0; transform-origin: 50% 96%; will-change: transform; }
 .loader__shadow { position: absolute; left: 26%; right: 26%; bottom: 0; height: 8%; border-radius: 50%; background: rgba(46, 53, 32, .18); opacity: 0; transform: scaleX(.3); }
-.loader__word { margin-top: 2px; padding: 0 .1em .06em; font-family: var(--display); font-size: clamp(46px, 12.4vw, 70px); line-height: 1.1; color: var(--olive-deep); clip-path: inset(0 100% 0 0); }
+.loader__word { margin-top: 2px; padding: 0 .1em .06em; font-family: var(--logo); font-size: clamp(46px, 12.4vw, 70px); line-height: 1.1; color: var(--olive-deep); clip-path: inset(0 100% 0 0); }
 .loader__hint { margin-top: 4px; font-size: 13.5px; letter-spacing: .02em; color: var(--ink-3); opacity: 0; }
 .loader__bar { position: relative; width: 140px; height: 2px; margin-top: 18px; border-radius: 2px; background: var(--line); overflow: hidden; }
 .loader__bar i { position: absolute; inset: 0; background: var(--olive); transform-origin: left; transform: scaleX(0); }
@@ -776,4 +783,64 @@ html:not(.js) .loader, .no-loader .loader { display: none; }
 
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { animation-duration: .01ms !important; animation-iteration-count: 1 !important; transition-duration: .01ms !important; }
+}
+
+/* =========================================================
+   ШРИФТЫ ПЕРВОЙ ВЕРСИИ: Noto Serif Display (узкий) — заголовки и акценты,
+   Lobster — только название «Что поесть» (логотип, прелоадер)
+   ========================================================= */
+.menu__links a, .dock__label, .opt__price, .pill-btn, .rsheet__cta-text, .float b, .steps__count,
+.kcal__badge b, .about__stats dt, .more-btn__label, .plan__price, .btn, .final__sign { font-stretch: 62.5%; }
+.dock__label, .pill-btn, .more-btn__label, .btn, .rsheet__cta-text, .final__sign, .steps__num, .plan__price span { font-style: italic; }
+.dock__label { font-size: 24px; }
+.menu__links a { font-size: 34px; line-height: 1.06; }
+.menu__links a:hover span { font-style: italic; }
+.access__title { font-size: 28px; line-height: 1; }
+.opt__price { font-size: 44px; line-height: 1; }
+.float b { font-size: clamp(25px, 3.2vh, 31px); line-height: 1; }
+.hero__title { font-size: clamp(52px, min(7.4vw, 13vh), 150px); line-height: .9; max-width: none; }
+.hero__statement { font-size: clamp(46px, min(8vw, 13vh), 148px); line-height: .96; }
+.mission__title { font-size: clamp(46px, min(6vw, 10.4vh), 110px); line-height: .94; }
+.steps__num { font-size: clamp(56px, 9vh, 104px); line-height: 1; height: 1em; }
+.step h3 { font-size: clamp(44px, min(5vw, 9.4vh), 96px); line-height: .92; }
+.why__title { font-size: clamp(46px, min(6vw, 10.4vh), 112px); line-height: .94; max-width: 13em; }
+.why__copy h3 { font-size: clamp(50px, min(6vw, 10.4vh), 116px); line-height: .9; }
+.kcal__title { font-size: clamp(40px, 13cqi, 96px); line-height: .94; }
+.kcal__badge b { font-size: 19px; }
+.inside__title { font-size: clamp(44px, min(6vw, 10vh), 108px); line-height: .94; }
+.feat__name { font-size: clamp(30px, min(3.2vw, 5.4vh), 54px); line-height: 1; }
+.feat__item.is-active .feat__name { font-style: italic; }
+.about__title { font-size: clamp(46px, 16cqi, 112px); line-height: .92; }
+.about__stats dt { font-size: clamp(32px, min(3.4vw, 6.2vh), 62px); line-height: .9; }
+.reviews__title { font-size: clamp(56px, min(10vw, 17vh), 200px); line-height: .9; }
+.rsheet__title { font-size: clamp(36px, 4.4vw, 52px); }
+.more-btn__label, .pill-btn { font-size: 24px; }
+.pricing__title { font-size: clamp(46px, min(6vw, 9.6vh), 110px); line-height: .9; }
+.plan__price { font-size: clamp(56px, min(6vw, 9.4vh), 100px); line-height: .9; }
+.btn { font-size: 23px; }
+.faq__title { font-size: clamp(46px, 16cqi, 116px); line-height: .92; }
+.final__title { font-size: clamp(42px, min(6.2vw, 10.4vh), 118px); line-height: .94; }
+.final__sign { font-size: 26px; }
+@media (max-width: 767px) {
+  .dock__label { font-size: 22px; }
+  .menu__links a { font-size: 34px; }
+  .hero__title { font-size: clamp(44px, 13.6vw, 72px); }
+  .hero__statement { font-size: clamp(40px, 12.4vw, 60px); }
+  .float b { font-size: 22px; }
+  .mission__title { font-size: clamp(40px, 12vw, 56px); }
+  .steps__num { font-size: 54px; }
+  .step h3 { font-size: clamp(34px, 10vw, 44px); }
+  .why__title { font-size: clamp(36px, 10.4vw, 48px); }
+  .why__copy h3 { font-size: 34px; }
+  .kcal__title { font-size: clamp(34px, 10vw, 46px); }
+  .inside__title { font-size: clamp(36px, 10.4vw, 48px); }
+  .feat__name { font-size: 32px; }
+  .about__title { font-size: clamp(40px, 11vw, 52px); }
+  .about__stats dt { font-size: 26px; }
+  .reviews__title { font-size: clamp(52px, 15vw, 72px); }
+  .rsheet__title { font-size: 38px; }
+  .more-btn__label { font-size: 22px; }
+  .pricing__title { font-size: clamp(40px, 11vw, 52px); }
+  .faq__title { font-size: clamp(40px, 11vw, 52px); }
+  .final__title { font-size: clamp(36px, 10vw, 48px); }
 }
