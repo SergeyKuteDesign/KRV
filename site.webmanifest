@@ -1,15 +1,14 @@
 {
-  "name": "Что поесть — рационы с КБЖУ",
+  "name": "Что поесть — готовые рационы с КБЖУ",
   "short_name": "Что поесть",
   "description": "Готовые рационы с КБЖУ, списком продуктов и видео от нутрициолога Кристины Василиу.",
   "lang": "ru",
   "start_url": "./",
   "display": "standalone",
   "background_color": "#F7F5EC",
-  "theme_color": "#2E3520",
+  "theme_color": "#F7F5EC",
   "icons": [
-    { "src": "assets/img/icon-192.png", "sizes": "192x192", "type": "image/png" },
-    { "src": "assets/img/icon-512.png", "sizes": "512x512", "type": "image/png" },
-    { "src": "assets/img/favicon.svg", "sizes": "any", "type": "image/svg+xml" }
+    { "src": "assets/img/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "assets/img/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" }
   ]
 }
