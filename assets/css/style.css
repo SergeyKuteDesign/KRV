@@ -844,3 +844,9 @@ html:not(.js) .loader, .no-loader .loader { display: none; }
   .faq__title { font-size: clamp(40px, 11vw, 52px); }
   .final__title { font-size: clamp(36px, 10vw, 48px); }
 }
+
+/* заголовки с ручной разбивкой на строки */
+.ln { display: block; }
+.final__title { max-width: none; }
+.mission__title em .ln, .final__title em .ln { white-space: nowrap; }
+@media (min-width: 768px) { .mission__inner { max-width: min(1040px, 100%); } .mission__title .ln { white-space: nowrap; } .mission__text, .mission__strong { max-width: 620px; } }
