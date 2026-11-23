@@ -1,6 +1,6 @@
 # «Что поесть» — лендинг Кристины Василиу (vas_kristi)
 
-Живая версия: https://sergeykutedesign.github.io/KRV/ (GitHub Pages, ветка `landing-v1`, обновляется после каждого пуша).
+Живая версия: https://vaskristi.ru/ — сервер 176.53.239.107 (Selectel), nginx, сайт в `/var/www/vaskristi.ru` (клон ветки `landing-v1`). После пуша обновить сайт на сервере: `ssh root@176.53.239.107 deploy-vaskristi-ru`. Копия на GitHub Pages: https://sergeykutedesign.github.io/KRV/.
 
 Статичный сайт: `index.html` + `assets/`. Сборка не нужна — локально достаточно `python -m http.server 5173`.
 
@@ -54,7 +54,7 @@
 ## SEO
 
 title/description, canonical, Open Graph + Twitter с задизайненной обложкой (`assets/img/og-image.jpg`, 1200×630), фавиконки и `site.webmanifest`, `robots.txt`, `sitemap.xml`, JSON-LD (`WebSite`, `Person`, `Product` с двумя `Offer`, `FAQPage`). Один `h1`, по `h2` на блок, у всех картинок есть `alt`.
-Когда появится свой домен, замените `https://sergeykutedesign.github.io/KRV/` в `index.html`, `robots.txt` и `sitemap.xml`.
+Основной домен — `https://vaskristi.ru/` (canonical, OG, `robots.txt`, `sitemap.xml`). HTTPS — Let's Encrypt через certbot на сервере, продление автоматическое.
 
 ## Как добавить отзыв
 

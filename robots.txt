@@ -1,4 +1,4 @@
 User-agent: *
 Allow: /
 
-Sitemap: https://sergeykutedesign.github.io/KRV/sitemap.xml
+Sitemap: https://vaskristi.ru/sitemap.xml
