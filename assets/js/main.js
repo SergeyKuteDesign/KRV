@@ -645,11 +645,14 @@
         gsap.fromTo(num, { yPercent: dir > 0 ? 100 : -100 }, { yPercent: 0, duration: 0.7, ease: 'expo.out' });
       };
       ScrollTrigger.create({
-        trigger: stepsSec, start: 'top top', end: () => '+=' + Math.round(innerHeight * (isDesk() ? 1.4 : 1.2)),
+        // телефон: шаг = ~0,7 экрана + доводка к ближайшему шагу → один свайп = один шаг
+        trigger: stepsSec, start: 'top top', end: () => '+=' + Math.round(innerHeight * (isDesk() ? 1.4 : 2.1)),
+        snap: { snapTo: (v) => (isDesk() ? v : Math.round(v * 3) / 3), duration: { min: 0.25, max: 0.6 }, delay: 0.12, ease: 'power2.inOut' },
         onUpdate: (self) => {
           const p = self.progress;
-          bars.forEach((b, k) => b.style.setProperty('--p', clamp(p * 4 - k).toFixed(3)));
-          const i = clamp(Math.floor(p * 4), 0, 3);
+          const mob = !isDesk();
+          bars.forEach((b, k) => b.style.setProperty('--p', (mob ? clamp(p * 3 - k + 1) : clamp(p * 4 - k)).toFixed(3)));
+          const i = mob ? clamp(Math.round(p * 3), 0, 3) : clamp(Math.floor(p * 4), 0, 3);
           if (i !== cur) showStep(i, i > cur ? 1 : -1);
         },
       });

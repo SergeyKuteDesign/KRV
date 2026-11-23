@@ -655,7 +655,7 @@ html:not(.js) .loader, .no-loader .loader { display: none; }
   .g-br { right: -4vw; }
   .g-tl, .g-tr { width: 40vw; }
 
-  .steps { height: calc(var(--vh) * 3.2); }
+  .steps { height: calc(var(--vh) * 4.1); }
   .steps__sticky { grid-template-columns: 1fr; grid-template-rows: auto 1fr; align-items: start; gap: 20px; }
   .steps__media { order: 1; height: 38svh; border-radius: 22px; }
   .steps__side { order: 2; gap: 14px; }
