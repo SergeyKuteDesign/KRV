@@ -141,8 +141,8 @@
       H.W = innerWidth;
       // кадр сцены = 100svh: не меняется, когда панель браузера прячется
       H.H = heroSticky.clientHeight || innerHeight;
-      if (isDesk()) { H.cardH = Math.min(H.H * 0.46, (H.W * 0.56) / 1.9); H.cardW = H.cardH * 1.9; H.cy = H.H * 0.51; H.dist = H.H * 1.7; }
-      else { H.cardW = H.W * 0.84; H.cardH = Math.min(H.H * 0.52, H.cardW * 1.3); H.cy = H.H * 0.5; H.dist = H.H * 1.4; }
+      if (isDesk()) { H.cardH = Math.min(H.H * 0.46, (H.W * 0.56) / 1.9); H.cardW = H.cardH * 1.9; H.cy = H.H * 0.51; H.dist = H.H * 1.4; }
+      else { H.cardW = H.W * 0.84; H.cardH = Math.min(H.H * 0.52, H.cardW * 1.3); H.cy = H.H * 0.5; H.dist = H.H * 1.2; }
       H.dockH = dock.offsetHeight || 60;
       H.safe = safeProbe.offsetHeight;
       H.ctaY = ctaSlot.offsetTop;
@@ -645,7 +645,7 @@
         gsap.fromTo(num, { yPercent: dir > 0 ? 100 : -100 }, { yPercent: 0, duration: 0.7, ease: 'expo.out' });
       };
       ScrollTrigger.create({
-        trigger: stepsSec, start: 'top top', end: () => '+=' + Math.round(innerHeight * (isDesk() ? 2 : 1.4)),
+        trigger: stepsSec, start: 'top top', end: () => '+=' + Math.round(innerHeight * (isDesk() ? 1.4 : 1.2)),
         onUpdate: (self) => {
           const p = self.progress;
           bars.forEach((b, k) => b.style.setProperty('--p', clamp(p * 4 - k).toFixed(3)));
