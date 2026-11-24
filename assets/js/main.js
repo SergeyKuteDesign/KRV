@@ -23,7 +23,7 @@
 
   typograph(document.body);
 
-  if (!window.gsap || !window.ScrollTrigger) { root.classList.remove('js'); root.classList.add('no-loader'); return; }
+  if (!window.gsap || !window.ScrollTrigger) { root.classList.remove('js'); return; }
   try {
     gsap.registerPlugin(ScrollTrigger);
     init();
@@ -31,32 +31,40 @@
   } catch (err) {
     console.error(err);
     root.classList.remove('js');
-    root.classList.add('no-loader');
   }
 
-  /* ---------- типограф: без висячих предлогов ---------- */
+  /* после загрузки страницы и в свободное время — то, что не нужно для первого экрана */
+  function afterLoad(fn, timeout = 2000) {
+    const run = () => (window.requestIdleCallback ? requestIdleCallback(fn, { timeout }) : setTimeout(fn, 200));
+    if (document.readyState === 'complete') run(); else window.addEventListener('load', run, { once: true });
+  }
+
+  /* ---------- типограф: без висячих предлогов и союзов ----------
+     Основная работа сделана заранее в index.html (tools/typograph.py) — здесь страховка
+     для текста, который появляется из JS. Неразрывный пробел — только через  :
+     «невидимый» символ прямо в коде однажды уже превратился в обычный пробел. */
   function typograph(scope) {
-    const short = 'а|в|во|и|к|ко|о|об|обо|с|со|у|я|ты|мы|вы|он|она|они|не|ни|но|на|по|за|из|от|до|для|без|под|над|при|про|через|перед|или|как|что|это|то|так|уже|ещё|еще|где|кто|чем|все|всё|мой|моя|мои|твой|твоя|твои|раз|два|три|её|его|их|если|когда';
+    const NB = ' ';
+    const short = 'а|в|во|и|к|ко|о|об|обо|с|со|у|я|ты|мы|вы|он|она|они|не|ни|но|на|по|за|из|от|до|для|без|под|над|при|про|через|перед|или|как|что|это|то|так|уже|ещё|еще|где|кто|чем|все|всё|мой|моя|мои|твой|твоя|твои|раз|два|три|её|его|их|если|когда|чтобы|ведь|лишь|даже|только';
     const reAfter = new RegExp('(^|[\\s\\u00A0(«"„])(' + short + ')[ \\t\\n\\r]+', 'gi');
-    const reParticle = /[ \t\n\r]+(же|ли|бы)(?=[\s.,!?…»]|$)/gi;
+    const reParticle = /[ \t\n\r]+(же|ли|бы)(?=[\s .,!?…»]|$)/gi;
     const reDash = /[ \t\n\r]+([—–])/g;
     const reNum = /(\d)[ \t\n\r]+(?=[\dА-Яа-яЁёA-Za-z₽%+≈])/g;
     const walker = document.createTreeWalker(scope, NodeFilter.SHOW_TEXT, {
       acceptNode(n) {
         const p = n.parentElement;
-        if (!p || p.closest('script, style, textarea, svg, code, pre, .kcal__line')) return NodeFilter.FILTER_REJECT;
+        if (!p || p.closest('script, style, textarea, svg, code, pre')) return NodeFilter.FILTER_REJECT;
         return /\S/.test(n.nodeValue) ? NodeFilter.FILTER_ACCEPT : NodeFilter.FILTER_REJECT;
       },
     });
     const nodes = [];
     while (walker.nextNode()) nodes.push(walker.currentNode);
     nodes.forEach((n) => {
-      const t = n.nodeValue.replace(reAfter, '$1$2 ').replace(reAfter, '$1$2 ')
-        .replace(reParticle, ' $1').replace(reDash, ' $1').replace(reNum, '$1 ');
+      const t = n.nodeValue.replace(reAfter, '$1$2' + NB).replace(reAfter, '$1$2' + NB)
+        .replace(reParticle, NB + '$1').replace(reDash, NB + '$1').replace(reNum, '$1' + NB);
       if (t !== n.nodeValue) n.nodeValue = t;
     });
     $$('h1, h2, h3', scope).forEach((h) => {
-      if (h.querySelector('.kcal__line')) return;
       const texts = [];
       const w = document.createTreeWalker(h, NodeFilter.SHOW_TEXT);
       while (w.nextNode()) if (/\S/.test(w.currentNode.nodeValue)) texts.push(w.currentNode);
@@ -65,7 +73,7 @@
       const v = last.nodeValue.replace(/\s+$/, '');
       const i = v.lastIndexOf(' ');
       const tail = v.slice(i + 1);
-      if (i > 0 && tail.length <= 9 && !tail.includes(' ')) last.nodeValue = v.slice(0, i) + ' ' + tail + last.nodeValue.slice(v.length);
+      if (i > 0 && tail.length <= 9 && !tail.includes(NB)) last.nodeValue = v.slice(0, i) + NB + tail + last.nodeValue.slice(v.length);
     });
   }
 
@@ -113,19 +121,23 @@
     const content = $('[data-hero-content]');
     const ctaSlot = $('[data-cta-slot]');
     const floats = $$('[data-float]');
-    let menuOpen = false, accessOpen = false, rOpen = false, heroP = 0, introDone = false;
+    const statement = $('[data-statement]');
+    let menuOpen = false, accessOpen = false, rOpen = false, heroP = 0;
+    const introDone = true;
 
-    /* ---------- видео ---------- */
-    const wide = isDesk();
-    video.poster = wide ? 'assets/img/hero-poster-wide.webp' : 'assets/img/hero-poster.webp';
-    video.src = wide ? 'assets/video/hero-wide.mp4' : 'assets/video/hero-640.mp4';
-    const playVideo = () => { const p = video.play(); if (p && p.catch) p.catch(() => {}); };
-    const videoReady = new Promise((res) => {
-      if (video.readyState >= 3) return res();
-      video.addEventListener('canplay', res, { once: true });
-      video.addEventListener('error', res, { once: true });
-      setTimeout(res, 3500);
-    });
+    /* ---------- видео: первый экран — кадр-картинка (виден сразу), видео грузится
+       после загрузки страницы и проявляется поверх, когда реально заиграло ---------- */
+    let videoOn = false, mediaInView = true;
+    const playVideo = () => { if (!videoOn || !mediaInView) return; const p = video.play(); if (p && p.catch) p.catch(() => {}); };
+    video.addEventListener('playing', () => media.classList.add('is-playing'), { once: true });
+    afterLoad(() => {
+      videoOn = true;
+      video.src = isDesk() ? 'assets/video/hero-wide.mp4' : 'assets/video/hero-640.mp4';
+      video.preload = 'auto';
+      playVideo();
+    }, 1200);
+    /* стикеры hero и прочие отложенные картинки */
+    afterLoad(() => $$('img[data-src]').forEach((im) => { im.src = im.dataset.src; delete im.dataset.src; }), 1500);
 
     /* =====================================================
        HERO-сцена: видео → карточка → фраза позади
@@ -169,6 +181,8 @@
       media.style.transform = `translate3d(0, ${(-f * (cy + cardH / 2 + 40)).toFixed(1)}px, 0)`;
       media.style.visibility = f >= 1 ? 'hidden' : 'visible';
       shade.style.opacity = lerp(1, 0.35, s).toFixed(3);
+      // фраза за видео не нужна, пока видео на весь экран (не рисуем лишний слой на первом кадре)
+      statement.style.visibility = P > 0.01 ? 'visible' : 'hidden';
       const c = clamp(P / 0.16);
       content.style.opacity = (1 - c).toFixed(3);
       content.style.transform = `translate3d(0, ${(-50 * clamp(P / 0.24)).toFixed(1)}px, 0)`;
@@ -200,7 +214,8 @@
       onRefresh: (self) => { measureHero(); heroP = self.progress; renderHero(); },
     });
     window.addEventListener('resize', () => { measureHero(); renderHero(); });
-    new IntersectionObserver(([en]) => (en.isIntersecting ? playVideo() : video.pause())).observe(media);
+    new IntersectionObserver(([en]) => { mediaInView = en.isIntersecting; if (mediaInView) playVideo(); else video.pause(); }).observe(media);
+    dock.classList.add('is-ready');
 
     /* ---------- scrim / шиты ---------- */
     const showScrim = () => { scrim.hidden = false; gsap.to(scrim, { opacity: 1, duration: 0.4, overwrite: true }); };
@@ -415,129 +430,109 @@
     });
 
     /* =====================================================
-       Прелоадер: маскот прыгает на надпись, надпись пишется
+       Старт без прелоадера: первый экран виден сразу (кадр видео + заголовок).
+       Маскот в шапке здоровается прыжком (CSS). Сцены скролла создаём следующей
+       задачей — главный поток не занят одним длинным куском при загрузке.
        ===================================================== */
-    const loader = $('[data-loader]');
-    const lMascot = $('[data-loader-mascot]');
-    const lShadow = $('[data-loader-shadow]');
-    const lWord = $('[data-loader-word]');
-    const lHint = $('[data-loader-hint]');
-    const lBar = $('[data-loader-bar]');
-    lock();
-    const fontLoad = document.fonts && document.fonts.load ? document.fonts.load('48px Lobster', 'Что поесть') : Promise.resolve();
-    const mascotLoad = lMascot.complete ? Promise.resolve() : new Promise((r) => { lMascot.onload = lMascot.onerror = r; });
-    Promise.race([Promise.all([fontLoad, mascotLoad]), new Promise((r) => setTimeout(r, 900))]).then(() => {
-      if (reduce) { gsap.set(lMascot, { opacity: 1 }); gsap.set(lWord, { clipPath: 'none' }); gsap.set(lHint, { opacity: 1 }); return; }
-      gsap.timeline()
-        .set(lMascot, { opacity: 1 })
-        .fromTo(lMascot, { y: -130, scaleX: 0.9, scaleY: 1.12 }, { y: 0, duration: 0.48, ease: 'power2.in' }, 0)
-        .fromTo(lShadow, { opacity: 0, scaleX: 0.25 }, { opacity: 1, scaleX: 1, duration: 0.48, ease: 'power2.in' }, 0)
-        .to(lMascot, { scaleX: 1.15, scaleY: 0.84, duration: 0.1, ease: 'power1.out' }, 0.48)
-        .to(lShadow, { scaleX: 1.2, duration: 0.1 }, 0.48)
-        .to(lMascot, { scaleX: 1, scaleY: 1, duration: 0.8, ease: 'elastic.out(1.1, 0.38)' }, 0.58)
-        .to(lShadow, { scaleX: 1, duration: 0.5, ease: 'power2.out' }, 0.58)
-        .to(lWord, { clipPath: 'inset(0 0% 0 0)', duration: 1, ease: 'power2.inOut' }, 0.42)
-        .to(lHint, { opacity: 1, duration: 0.5 }, 1)
-        .to(lMascot, { rotation: -8, duration: 0.16, ease: 'sine.inOut', yoyo: true, repeat: 3 }, 1.35);
-    });
-    const lp = gsap.to(lBar, { scaleX: 0.85, duration: 1.9, ease: 'power2.out' });
-    const fontsReady = document.fonts ? document.fonts.ready : Promise.resolve();
-    const posterReady = new Promise((res) => { const i = new Image(); i.onload = i.onerror = res; i.src = video.poster; });
-    const assetsReady = Promise.race([Promise.all([fontsReady, posterReady, videoReady]), new Promise((r) => setTimeout(r, 5000))]);
-    Promise.all([assetsReady, new Promise((r) => setTimeout(r, reduce ? 500 : 2300))]).then(() => {
-      lp.kill();
-      gsap.to(lBar, { scaleX: 1, duration: 0.3, ease: 'power2.inOut', onComplete: exitLoader });
-    });
-    function exitLoader() {
-      gsap.timeline({ onComplete: () => loader.remove() })
-        .to(lMascot, { y: -18, scaleX: 0.94, scaleY: 1.08, duration: 0.2, ease: 'power2.out' }, 0)
-        .to(lShadow, { scaleX: 0.6, opacity: 0.5, duration: 0.2 }, 0)
-        .to('.loader__inner', { y: -40, opacity: 0, duration: 0.42, ease: 'power2.in' }, 0.18)
-        .to(loader, { yPercent: -100, duration: 0.9, ease: 'expo.inOut' }, 0.4)
-        .add(heroIntro, 0.62);
-    }
-    function heroIntro() {
-      playVideo();
-      measureHero();
-      introDone = true;
-      renderHero();
-      gsap.timeline()
-        .add(() => { unlock(); setupScroll(); ScrollTrigger.refresh(); }, 0.6)
-        .fromTo(video, { scale: 1.12 }, { scale: 1, duration: 2, ease: 'expo.out', clearProps: 'transform' }, 0)
-        .fromTo('[data-intro]', { opacity: 0, y: 34 }, { opacity: 1, y: 0, duration: 1.2, stagger: 0.12, ease: 'expo.out' }, 0.1)
-        .add(() => dock.classList.add('is-ready'), 0.45);
-    }
+    measureHero(); renderHero();
+    setTimeout(setupScroll, 0);
 
     /* =====================================================
-       КАЛОРИЙНОСТЬ: табы в карточке, фото и бейдж меняются вместе
+       ИГРА «Что поесть?»: барабан крутит реальные рационы из канала
+       и останавливается на случайном. Анимация — только transform.
        ===================================================== */
-    const sw = $('.kcal__switch');
-    const swBtns = $$('button', sw);
-    const frame = $('[data-kcal-frame]');
-    const badge = $('[data-kcal-badge]');
-    const kIdx = () => swBtns.findIndex((b) => b.classList.contains('on'));
-    const movePill = () => { const b = swBtns[kIdx()]; if (!b) return; sw.style.setProperty('--pill-x', b.offsetLeft + 'px'); sw.style.setProperty('--pill-w', b.offsetWidth + 'px'); };
-    movePill();
-    window.addEventListener('resize', movePill);
-    if (document.fonts) document.fonts.ready.then(movePill);
-    const setK = (i) => {
-      const b = swBtns[i];
-      const cur = kIdx();
-      if (!b || i === cur) return;
-      const dir = i > cur ? 1 : -1;
-      swBtns.forEach((x) => { x.classList.toggle('on', x === b); x.setAttribute('aria-selected', String(x === b)); x.tabIndex = x === b ? 0 : -1; });
-      movePill();
-      const k = b.dataset.k;
-      badge.textContent = k;
-      gsap.fromTo(badge, { yPercent: dir * 70, opacity: 0 }, { yPercent: 0, opacity: 1, duration: 0.55, ease: 'expo.out' });
-      const img = new Image();
-      img.alt = `Реальный рацион на ${k} ккал в контейнерах`;
-      img.decoding = 'async';
-      img.src = `assets/img/ration-${k}.webp`;
-      const show = () => {
-        if (!b.classList.contains('on')) return;
-        frame.insertBefore(img, $('.kcal__badge', frame));
-        gsap.fromTo(img, { clipPath: dir > 0 ? 'inset(0% 0% 0% 100%)' : 'inset(0% 100% 0% 0%)', scale: 1.1 }, {
-          clipPath: 'inset(0% 0% 0% 0%)', scale: 1, duration: 0.85, ease: 'expo.inOut',
-          onComplete: () => { $$('img', frame).forEach((x) => x !== img && x.remove()); gsap.set(img, { clearProps: 'clipPath,transform' }); },
-        });
-      };
-      (img.decode ? img.decode() : Promise.resolve()).then(show, show);
-    };
-    swBtns.forEach((b, i) => { b.tabIndex = b.classList.contains('on') ? 0 : -1; b.addEventListener('click', () => setK(i)); });
-    sw.addEventListener('keydown', (e) => {
-      if (e.key !== 'ArrowRight' && e.key !== 'ArrowLeft') return;
-      e.preventDefault();
-      const i = clamp(kIdx() + (e.key === 'ArrowRight' ? 1 : -1), 0, swBtns.length - 1);
-      setK(i); swBtns[i].focus();
-    });
     {
-      let sx = 0, sy = 0, on = false;
-      frame.addEventListener('pointerdown', (e) => { on = true; sx = e.clientX; sy = e.clientY; });
-      frame.addEventListener('pointerup', (e) => {
-        if (!on) return; on = false;
-        const dx = e.clientX - sx, dy = e.clientY - sy;
-        if (Math.abs(dx) > 40 && Math.abs(dx) > Math.abs(dy) * 1.3) setK(clamp(kIdx() + (dx < 0 ? 1 : -1), 0, swBtns.length - 1));
+      const sec = $('[data-spin]');
+      const btn = $('[data-spin-btn]', sec);
+      const label = $('[data-spin-label]', sec);
+      const frameEl = $('[data-spin-frame]', sec);
+      const badgeEl = $('[data-spin-badge]', sec);
+      const nameEl = $('[data-spin-name]', sec);
+      const result = $('[data-spin-result]', sec);
+      const verdict = $('[data-spin-verdict]', sec);
+      const card = $('[data-spin-card]', sec);
+      const ava = $('.spin__btn-ava img', sec);
+      let [shown, spare] = $$('.spin__img', frameEl);
+      gsap.set(shown, { yPercent: 0 }); gsap.set(spare, { yPercent: 100 });
+      const P = 'assets/img/';
+      const items = [
+        { src: 'ration-1400.webp', name: 'Сэндвичи и салат с яйцом', k: 1400 },
+        { src: 'food-19-720.webp', name: 'Пицца и мороженое' },
+        { src: 'ration-1500.webp', name: 'Курица с рисом и запеканка', k: 1500 },
+        { src: 'food-02-720.webp', name: 'Хачапури и запеканки' },
+        { src: 'ration-1600.webp', name: 'Гречка с овощами и киш', k: 1600 },
+        { src: 'food-10-720.webp', name: 'Тыква с мясом и десерты' },
+        { src: 'ration-1700.webp', name: 'Пицца и лазанья', k: 1700 },
+        { src: 'ration-1800.webp', name: 'Салат с курицей и йогурт', k: 1800 },
+      ];
+      let cur = 6, busy = false;
+      // фото барабана грузим и декодируем заранее, когда блок близко
+      let pre = false;
+      const preload = () => {
+        if (pre) return; pre = true;
+        items.forEach((it) => { const im = new Image(); im.decoding = 'async'; im.src = P + it.src; if (im.decode) im.decode().catch(() => {}); it.im = im; });
+      };
+      new IntersectionObserver(([en], ob) => { if (en.isIntersecting) { preload(); ob.disconnect(); } }, { rootMargin: '700px 0px' }).observe(sec);
+      const info = (it) => {
+        badgeEl.textContent = it.k ? `${it.k} ккал в день` : 'рацион на 2–3 дня';
+        nameEl.textContent = it.name;
+      };
+      const put = (img, it) => { if (img.getAttribute('src') !== P + it.src) img.src = P + it.src; };
+      const land = (it) => {
+        shown.alt = `Рацион из канала: ${it.name.toLowerCase()}`;
+        shown.removeAttribute('aria-hidden');
+        spare.alt = ''; spare.setAttribute('aria-hidden', 'true');
+        verdict.innerHTML = `Решено: <b>${it.name.toLowerCase()}</b>${it.k ? ` — ${it.k}&nbsp;ккал в&nbsp;день` : ''}. Список продуктов, видео и&nbsp;КБЖУ к&nbsp;этому рациону уже ждут в&nbsp;канале.`;
+        typograph(verdict);
+        result.classList.add('is-shown');
+        label.textContent = 'Крутить ещё';
+        busy = false; btn.removeAttribute('aria-busy');
+      };
+      btn.addEventListener('click', () => {
+        if (busy) return;
+        busy = true; btn.setAttribute('aria-busy', 'true');
+        preload();
+        const n = items.length;
+        let target = Math.floor(Math.random() * (n - 1));
+        if (target >= cur) target++;
+        const T = 9 + ((((target - cur - 9) % n) + n) % n); // столько «щелчков» барабана, чтобы встать на target
+        result.classList.remove('is-shown');
+        if (reduce) { cur = target; put(shown, items[cur]); info(items[cur]); land(items[cur]); return; }
+        const wig = gsap.to(ava, { rotation: 14, duration: 0.09, ease: 'sine.inOut', yoyo: true, repeat: -1 });
+        gsap.fromTo(card, { scale: 1 }, { scale: 0.975, duration: 0.25, ease: 'power2.out' });
+        // две картинки по очереди: уходящая едет вверх, следующая въезжает снизу
+        const A = shown, B = spare;
+        const tl = gsap.timeline({
+          onComplete: () => {
+            [shown, spare] = T % 2 ? [B, A] : [A, B];
+            wig.kill(); gsap.to(ava, { rotation: 0, duration: 0.4, ease: 'back.out(3)' });
+            gsap.fromTo(card, { scale: 0.975 }, { scale: 1, duration: 0.9, ease: 'elastic.out(1, 0.45)' });
+            land(items[cur]);
+          },
+        });
+        for (let i = 0; i < T; i++) {
+          const last = i === T - 1;
+          const out = i % 2 ? B : A, inn = i % 2 ? A : B;
+          const d = 0.055 + 0.42 * Math.pow(i / (T - 1), 2.3);
+          tl.add(() => {
+            cur = (cur + 1) % n;
+            put(inn, items[cur]);
+            gsap.set(inn, { yPercent: 100 });
+          });
+          tl.to(out, { yPercent: -100, duration: d, ease: last ? 'power2.out' : 'none' });
+          tl.to(inn, { yPercent: 0, duration: d, ease: last ? 'back.out(1.7)' : 'none' }, '<');
+          tl.add(() => {
+            inn.classList.add('is-cur'); out.classList.remove('is-cur');
+            info(items[cur]);
+          });
+        }
       });
-      frame.addEventListener('pointercancel', () => { on = false; });
     }
 
-    /* ---------- ленты: текст течёт по волне ---------- */
-    initRibbons();
-
-    /* ---------- ЧТО ВНУТРИ: строка списка → фото справа ---------- */
+    /* ---------- ленты: собираем, только когда блок близко ---------- */
     {
-      const feats = $$('[data-feat-item]');
-      const stageImgs = $$('[data-feat-stage] img');
-      const setFeat = (i) => {
-        feats.forEach((li, k) => li.classList.toggle('is-active', k === i));
-        stageImgs.forEach((im, k) => im.classList.toggle('is-active', k === i));
-      };
-      feats.forEach((li, i) => {
-        li.addEventListener('mouseenter', () => { if (isDesk()) setFeat(i); });
-        li.addEventListener('focus', () => { if (isDesk()) setFeat(i); });
-        li.addEventListener('click', () => { if (isDesk()) setFeat(i); });
-      });
+      const rs = $('[data-ribbons]');
+      if (rs) new IntersectionObserver(([en], ob) => { if (en.isIntersecting) { ob.disconnect(); initRibbons(); } }, { rootMargin: '100% 0px' }).observe(rs);
     }
 
     /* ---------- горизонтальные карусели: тени по краям показывают, куда листать ---------- */
@@ -606,13 +601,25 @@
       const predecode = (imgs) => imgs.forEach((im) => { if (!im) return; im.loading = 'eager'; if (im.decode) im.decode().catch(() => {}); });
       ScrollTrigger.create({ trigger: '#pain', start: 'top bottom', once: true, onEnter: () => predecode($$('[data-step-img] img')) });
       ScrollTrigger.create({ trigger: '#how', start: 'top bottom', once: true, onEnter: () => predecode($$('.why__img img')) });
-      ScrollTrigger.create({ trigger: '#kcal', start: 'top bottom', once: true, onEnter: () => predecode(isDesk() ? $$('[data-feat-stage] img') : $$('.feat__img img')) });
+      ScrollTrigger.create({ trigger: '#spin', start: 'top bottom', once: true, onEnter: () => predecode($$('.feat__img img')) });
 
       /* hero → боль */
       layer('[data-statement]', '#pain');
       reveal($$('[data-reveal]', $('#pain')), '#pain', 'top 62%');
+      // сад собираем по частям (несколько коротких задач вместо одной длинной):
+      // в свободное время после загрузки или раньше, если до блока уже близко
       const gardenEl = $('[data-garden]');
-      if (gardenEl) growGarden(gardenEl, buildGarden(gardenEl));
+      if (gardenEl) {
+        let started = false;
+        const build = () => {
+          if (started) return; started = true;
+          const { plan, jobs } = buildGarden(gardenEl);
+          const next = () => { const job = jobs.shift(); if (job) Promise.resolve(job()).then(() => setTimeout(next, 16)); else growGarden(gardenEl, plan); };
+          next();
+        };
+        afterLoad(build, 4000);
+        ScrollTrigger.create({ trigger: '#pain', start: 'top 190%', once: true, onEnter: build });
+      }
       layer('.mission__sticky', '#how');
 
       /* STEPS: 4 экрана сменяют друг друга */
@@ -675,16 +682,13 @@
         reveal([...$$('[data-reveal]', $('#why')), ...$$('.why__track .why__panel').slice(0, 2)], '#why', 'top 62%');
       });
 
-      /* KCAL */
-      reveal($$('[data-reveal]', $('#kcal')), '#kcal');
-      gsap.fromTo('.kcal__card', { opacity: 0, y: 60, scale: 0.94, rotation: 2 }, { opacity: 1, y: 0, scale: 1, rotation: 0, duration: 1.2, ease: 'expo.out', scrollTrigger: { trigger: '#kcal', start: 'top 68%', ...rev } });
+      /* ИГРА */
+      reveal($$('[data-reveal]', $('#spin')), '#spin');
+      gsap.fromTo('.spin__card', { opacity: 0, y: 60, rotation: 3 }, { opacity: 1, y: 0, rotation: 0, duration: 1.2, ease: 'expo.out', scrollTrigger: { trigger: '#spin', start: 'top 68%', ...rev } });
 
-      /* INSIDE */
+      /* INSIDE: карточки появляются волной */
       reveal($$('[data-reveal]', $('#inside')), '#inside');
-      mm.add(DESK, () => {
-        reveal($$('.feat__item'), '.feat', 'top 80%');
-        gsap.fromTo('.inside__stage', { opacity: 0, y: 60, scale: 0.92 }, { opacity: 1, y: 0, scale: 1, duration: 1.3, ease: 'expo.out', scrollTrigger: { trigger: '.inside__body', start: 'top 75%', ...rev } });
-      });
+      mm.add(DESK, () => reveal($$('.feat__item'), '.feat', 'top 82%'));
       mm.add(MOB, () => reveal($$('.feat__item').slice(0, 2), '.feat', 'top 85%'));
 
       /* ABOUT → на него наезжают отзывы */
@@ -725,10 +729,24 @@
       mm.add(DESK, () => layer('.faq__sticky', '.final'));
       reveal($$('[data-reveal]', $('.final')), '.final', 'top 60%');
 
-      /* шапка прячется при скролле вниз */
-      ScrollTrigger.create({ start: 0, end: 'max', onUpdate: (self) => { if (menuOpen) return; nav.classList.toggle('is-hidden', self.direction === 1 && self.scroll() > 200); } });
+      /* шапка: уезжает, когда листаешь вниз (≥ 70px подряд), возвращается при движении вверх
+         (≥ 40px) и у самого верха. Порог гасит дрожание на мелких откатах, доводках и инерции. */
+      {
+        let lastY = lenis ? lenis.scroll : scrollY, acc = 0, hidden = false;
+        const setHidden = (v) => { if (v !== hidden) { hidden = v; nav.classList.toggle('is-hidden', v); } };
+        const onScroll = () => {
+          const y = lenis ? lenis.scroll : scrollY;
+          const dy = y - lastY; lastY = y;
+          if (!dy || menuOpen) return;
+          if (y < 160) { acc = 0; setHidden(false); return; }
+          if ((dy > 0) !== (acc > 0)) acc = 0;
+          acc += dy;
+          if (acc > 70) setHidden(true); else if (acc < -40) setHidden(false);
+        };
+        if (lenis) lenis.on('scroll', onScroll); else window.addEventListener('scroll', onScroll, { passive: true });
+      }
 
-      if (document.fonts) document.fonts.ready.then(() => ScrollTrigger.refresh());
+      if (document.fonts) document.fonts.ready.then(() => afterLoad(() => ScrollTrigger.refresh(), 1500));
     }
 
     /* =====================================================
@@ -1048,11 +1066,9 @@
         for (let i = 0; i < (small ? 3 : 5); i++) clover(front, CL, X(R(200, 470)), bh - R(16, 30), R(9, 12), R(-25, 25));
         for (let i = 0; i < (small ? 2 : 4); i++) daisy(front, CL, X(R(240, 500)), bh - R(30, 70), R(8, 11));
       };
-      meadow(1);
-      meadow(-1);
-
-      // ---------- лианы сверху ----------
-      {
+      // сборка по частям: каждая часть — отдельная короткая задача (см. build в setupScroll)
+      host.classList.add('is-building');
+      const vinesTop = () => {
         const vw = 380, vh = 560;
         const tl = svg('g-tl', vw, vh);
         vine(tl, [[26, -20], [62, 70], [40, 160], [94, 250], [78, 340], [128, 420], [114, 510]], 3.4, [C.leaf, C.fresh, C.olive, C.bright], jasmine, 3);
@@ -1062,42 +1078,64 @@
         vine(tr, [[354, -20], [320, 80], [340, 170], [288, 260], [306, 350], [252, 440], [266, 500]], 3.4, [C.fresh, C.leaf, C.olive, C.bright], (p, G, x, y, r) => bell(p, G, x, y, r * 1.25, R(-25, 25)), 3);
         vine(tr, [[246, -20], [214, 70], [238, 150], [200, 230], [214, 290]], 2.8, [C.leaf, C.bright, C.fresh], jasmine, 4, 0.9);
         if (!small) vine(tr, [[150, -20], [126, 50], [146, 110], [116, 160]], 2.2, [C.fresh, C.leaf], cosmos, 4, 0.8);
-      }
+      };
       // ---------- лепестки, которые медленно падают ----------
-      for (let i = 0; i < (small ? 4 : 7); i++) {
-        const el = document.createElement('i');
-        el.className = 'petal';
-        el.style.cssText = `left:${(R(4, 30) + (i % 2 ? 66 : 0)).toFixed(1)}%;top:${R(-6, 30).toFixed(1)}%;--d:${R(9, 15).toFixed(1)}s;--dl:${(-R(0, 12)).toFixed(1)}s;--x:${R(-60, 60).toFixed(0)}px;--c:${[C.petal, C.blush, C.bright, '#F2C2B4'][i % 4]}`;
-        host.appendChild(el);
-      }
-      return out;
+      const petals = () => {
+        for (let i = 0; i < (small ? 4 : 7); i++) {
+          const el = document.createElement('i');
+          el.className = 'petal';
+          el.style.cssText = `left:${(R(4, 30) + (i % 2 ? 66 : 0)).toFixed(1)}%;top:${R(-6, 30).toFixed(1)}%;--d:${R(9, 15).toFixed(1)}s;--dl:${(-R(0, 12)).toFixed(1)}s;--x:${R(-60, 60).toFixed(0)}px;--c:${[C.petal, C.blush, C.bright, '#F2C2B4'][i % 4]}`;
+          host.appendChild(el);
+        }
+      };
+      // готовый сад → картинки: каждый SVG сериализуем в <img> (6 элементов в DOM вместо ~1200).
+      // Живой SVG с сотнями узлов утяжелял КАЖДЫЙ кадр страницы, даже когда сад за экраном.
+      // viewBox расширяем до реальных границ рисунка — у <img> всё, что за viewBox, обрезается.
+      const toImages = () => Promise.all($$('svg', host).map((sv) => {
+        const { x: vx, y: vy, width: vw, height: vh } = sv.viewBox.baseVal; // копия: baseVal «живой»
+        const vb = { x: vx, y: vy, width: vw, height: vh }, bb = sv.getBBox(), pad = 14;
+        const x0 = Math.min(vb.x, bb.x - pad), y0 = Math.min(vb.y, bb.y - pad);
+        const x1 = Math.max(vb.x + vb.width, bb.x + bb.width + pad), y1 = Math.max(vb.y + vb.height, bb.y + bb.height + pad);
+        const pc = (v) => (v * 100).toFixed(3) + '%';
+        const box = document.createElement('span');
+        box.className = sv.getAttribute('class') + ' gbox';
+        sv.removeAttribute('class');
+        sv.setAttribute('viewBox', `${f1(x0)} ${f1(y0)} ${f1(x1 - x0)} ${f1(y1 - y0)}`);
+        sv.setAttribute('width', f1(x1 - x0)); sv.setAttribute('height', f1(y1 - y0));
+        const img = new Image();
+        img.alt = ''; img.decoding = 'async';
+        img.style.cssText = `left:${pc((x0 - vb.x) / vb.width)};top:${pc((y0 - vb.y) / vb.height)};width:${pc((x1 - x0) / vb.width)};height:${pc((y1 - y0) / vb.height)}`;
+        img.src = URL.createObjectURL(new Blob([new XMLSerializer().serializeToString(sv)], { type: 'image/svg+xml' }));
+        box.appendChild(img);
+        sv.replaceWith(box);
+        return (img.decode ? img.decode() : Promise.resolve()).catch(() => {});
+      }));
+      return { plan: out, jobs: [() => meadow(1), () => meadow(-1), vinesTop, petals, toImages] };
     }
 
-    function growGarden(host, plan) {
-      if (reduce) { host.classList.add('is-alive'); return; }
-      const tl = gsap.timeline({ paused: true, onComplete: () => host.classList.add('is-alive') });
-      let t = { blade: 0, stem: 0.15, leaf: 0.45, bloom: 0.95 };
-      plan.groups.forEach((G) => {
-        if (!G.els.length) return;
-        if (G.kind === 'blade') {
-          gsap.set(G.els, { scaleY: 0, transformOrigin: '50% 100%' });
-          tl.to(G.els, { scaleY: 1, duration: 0.9, stagger: 0.025, ease: 'power3.out' }, t.blade); t.blade += 0.12;
-        } else if (G.kind === 'stem' || G.kind === 'tendril' || G.kind === 'vine') {
-          G.els.forEach((e) => { const l = e.getTotalLength(); e.style.strokeDasharray = `${l} ${l}`; e.style.strokeDashoffset = l; });
-          const start = G.kind === 'vine' ? 0.1 : G.kind === 'tendril' ? 1.15 : t.stem;
-          tl.to(G.els, { strokeDashoffset: 0, duration: G.kind === 'vine' ? 1.8 : 1.1, stagger: 0.06, ease: G.kind === 'vine' ? 'power2.inOut' : 'power2.out' }, start);
-          if (G.kind === 'stem') t.stem += 0.08;
-        } else if (G.kind === 'leaf' || G.kind === 'vleaf') {
-          gsap.set(G.els, { scale: 0, transformOrigin: '0% 50%' });
-          const start = G.kind === 'vleaf' ? 0.25 : t.leaf;
-          tl.to(G.els, { scale: 1, duration: 0.6, stagger: G.kind === 'vleaf' ? 1.6 / G.els.length : 0.035, ease: 'back.out(1.8)' }, start);
-          if (G.kind === 'leaf') t.leaf += 0.1;
-        } else if (G.kind === 'bloom') {
-          gsap.set(G.els, { scale: 0, rotation: -50, transformOrigin: '50% 50%' });
-          tl.to(G.els, { scale: 1, rotation: 0, duration: 0.8, stagger: 0.09, ease: 'back.out(2.2)' }, Math.max(1.15, t.bloom)); t.bloom += 0.1;
-        }
-      });
-      ScrollTrigger.create({ trigger: '#pain', start: 'top 55%', once: true, onEnter: () => tl.play() });
+    /* Рост сада. Анимировать сотни SVG-элементов по отдельности дорого: каждый кадр
+       перерисовывается весь слой (замер на телефоне: ~30 кадров/с и рывки). Поэтому луг
+       поднимается из земли, а лианы опускаются сверху — шесть слоёв целиком, только
+       transform на видеокарте (~45+ кадров/с). Дальше — покачивание и лепестки на CSS. */
+    function growGarden(host) {
+      if (reduce) { host.classList.remove('is-building'); host.classList.add('is-alive'); return; }
+      const svgs = $$('.gbox', host);
+      const meadowBack = svgs.filter((s) => s.classList.contains('g-back'));
+      const meadowFront = svgs.filter((s) => s.classList.contains('g-front'));
+      const vinesTop = svgs.filter((s) => s.classList.contains('g-tl') || s.classList.contains('g-tr'));
+      gsap.set(meadowBack, { yPercent: 46, scaleY: 0.55, transformOrigin: '50% 100%', opacity: 0 });
+      gsap.set(meadowFront, { yPercent: 62, scaleY: 0.45, transformOrigin: '50% 100%', opacity: 0 });
+      gsap.set(vinesTop, { yPercent: -38, scaleY: 0.5, transformOrigin: '50% 0%', opacity: 0 });
+      host.classList.remove('is-building');
+      const grow = () => {
+        gsap.timeline({
+          onComplete: () => { gsap.set(svgs, { clearProps: 'transform,opacity' }); host.classList.add('is-alive'); },
+        })
+          .to(meadowBack, { yPercent: 0, scaleY: 1, opacity: 1, duration: 1.3, ease: 'expo.out', stagger: 0.12 }, 0)
+          .to(meadowFront, { yPercent: 0, scaleY: 1, opacity: 1, duration: 1.4, ease: 'back.out(1.4)', stagger: 0.12 }, 0.18)
+          .to(vinesTop, { yPercent: 0, scaleY: 1, opacity: 1, duration: 1.8, ease: 'elastic.out(1, 0.55)', stagger: 0.14 }, 0.05);
+      };
+      ScrollTrigger.create({ trigger: '#pain', start: 'top 55%', once: true, onEnter: grow });
       // покачивание только пока блок на экране
       new IntersectionObserver(([en]) => host.classList.toggle('is-paused', !en.isIntersecting)).observe(host);
     }
