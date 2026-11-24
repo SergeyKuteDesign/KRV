@@ -130,11 +130,20 @@
     let videoOn = false, mediaInView = true;
     const playVideo = () => { if (!videoOn || !mediaInView) return; const p = video.play(); if (p && p.catch) p.catch(() => {}); };
     video.addEventListener('playing', () => media.classList.add('is-playing'), { once: true });
-    afterLoad(() => {
+    // видео (1,5–2 МБ) стартует при первом действии человека (скролл, касание, мышь, клавиша)
+    // или через 6 с: до этого виден его же кадр, а канал и процессор свободны для первого экрана
+    const startVideo = () => {
+      if (videoOn) return;
       videoOn = true;
+      evs.forEach((ev) => window.removeEventListener(ev, startVideo, opts));
       video.src = isDesk() ? 'assets/video/hero-wide.mp4' : 'assets/video/hero-640.mp4';
       video.preload = 'auto';
       playVideo();
+    };
+    const evs = ['scroll', 'wheel', 'touchstart', 'pointerdown', 'pointermove', 'keydown'], opts = { passive: true };
+    afterLoad(() => {
+      evs.forEach((ev) => window.addEventListener(ev, startVideo, opts));
+      setTimeout(startVideo, 6000);
     }, 1200);
     /* стикеры hero и прочие отложенные картинки */
     afterLoad(() => $$('img[data-src]').forEach((im) => { im.src = im.dataset.src; delete im.dataset.src; }), 1500);
